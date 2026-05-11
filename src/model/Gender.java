@@ -1,5 +1,7 @@
 package model;
 
+import enums.AppointmentType;
+
 public enum Gender {
     MALE("Male"), FEMALE("Female");
     private String message;
@@ -15,8 +17,16 @@ public enum Gender {
             default -> null;
         };
     }
-
     public String getMessage() {
         return message;
+    }
+
+    public static Gender fromMessage(String message) {
+        for (Gender g : values()) {
+            if (g.message.equalsIgnoreCase(message)) {
+                return g;
+            }
+        }
+        throw new IllegalArgumentException("Unknown Gender Type: " + message);
     }
 }

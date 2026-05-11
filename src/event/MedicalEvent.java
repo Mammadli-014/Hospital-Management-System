@@ -1,5 +1,7 @@
 package event;
 
+import enums.PaymentType;
+
 import java.time.LocalDate;
 
 public abstract class MedicalEvent {

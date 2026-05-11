@@ -1,5 +1,9 @@
 package event;
 
+import enums.AppStatus;
+import enums.AppointmentType;
+import enums.PaymentType;
+
 import java.time.LocalDate;
 
 public class AppointmentRecord extends MedicalEvent{
@@ -10,8 +14,8 @@ public class AppointmentRecord extends MedicalEvent{
     private PaymentType paymentType;
     private AppointmentType appointmentType;
 
-    public AppointmentRecord(int id, int patientId, LocalDate date,int doctorId, String reason, int paymentAmount, AppStatus status,
-                             PaymentType paymentType, AppointmentType appointmentType) {
+    public AppointmentRecord(int id, int patientId, LocalDate date,int doctorId, String reason, int paymentAmount,
+             AppStatus status, PaymentType paymentType, AppointmentType appointmentType) {
         super(id,patientId,date);
         this.doctorId = doctorId;
         this.reason = reason;
@@ -68,19 +72,4 @@ public class AppointmentRecord extends MedicalEvent{
     public void setAppointmentType(AppointmentType appointmentType) {
         this.appointmentType = appointmentType;
     }
-}
-
-
-
-
-enum AppStatus {
-    COMPLETED, CANCELLED, SCHEDULED, NO_SHOW;
-}
-
-enum PaymentType{
-    INSURANCE,CARD,CASH,DIGITAL_WALLET;
-}
-
-enum AppointmentType{
-    CALL,IN_PERSON,ONLINE;
 }

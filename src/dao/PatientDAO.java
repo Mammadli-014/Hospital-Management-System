@@ -1,6 +1,6 @@
 package dao;
 
-import db.DbConnection;
+import db.DBConnection;
 import model.Gender;
 import model.Patient;
 
@@ -12,7 +12,7 @@ public class PatientDAO {
 
     public boolean addPatient(Patient patient) {
         String sql = "INSERT INTO Patients (FName,LName,Gender,Date_Of_Birth,contact_No,pt_Address)" + "VALUES (?,?,?,?,?,?)";
-        try (Connection con = DbConnection.getConnection();
+        try (Connection con = DBConnection.getConnection();
              PreparedStatement p = con.prepareStatement(sql)) {
             p.setString(1, patient.getFname());
             p.setString(2, patient.getLname());
@@ -30,7 +30,7 @@ public class PatientDAO {
     public boolean updatePatient(Patient p) {
         String sql = "UPDATE Patients SET Fname=?, Lname=?, Gender=?, Contact=?, Address=? " +
                 "WHERE patient_Id=?";
-        try (Connection con = DbConnection.getConnection();
+        try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, p.getFname());
             ps.setString(2, p.getLname());
@@ -48,7 +48,7 @@ public class PatientDAO {
 
     public boolean deletePatient(int id) {
         String sql = "DELETE FROM Patients WHERE Patient_id = ?";
-        try (Connection con = DbConnection.getConnection();
+        try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
@@ -61,7 +61,7 @@ public class PatientDAO {
     public Patient findById(int id) {
         String sql = "SELECT * FROM Patients WHERE Patient_id = ?";
 
-        try (Connection con = DbConnection.getConnection();
+        try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -75,7 +75,7 @@ public class PatientDAO {
 
     public int countNurse() {
         String sql = "Select count(*) from Patients";
-        try (Connection con = DbConnection.getConnection();
+        try (Connection con = DBConnection.getConnection();
              Statement statement = con.createStatement();
              ResultSet resultSet = statement.executeQuery(sql);
         ) {
@@ -90,7 +90,7 @@ public class PatientDAO {
         List<Patient> list = new ArrayList<>();
         String sql = "SELECT * FROM Patients ORDER BY Fname, Lname";
 
-        try (Connection con = DbConnection.getConnection();
+        try (Connection con = DBConnection.getConnection();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) list.add(mapRow(rs));
@@ -104,7 +104,7 @@ public class PatientDAO {
     public List<Patient> search(String keyword) {
         List<Patient> list = new ArrayList<>();
         String sql = "SELECT * FROM Patients WHERE Fname LIKE ? OR Lname LIKE ? OR Patient_id LIKE ?";
-        try (Connection con = DbConnection.getConnection();
+        try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             String k = "%" + keyword + "%";
             ps.setString(1, k);
@@ -120,13 +120,13 @@ public class PatientDAO {
 
     private Patient mapRow(ResultSet rs) throws SQLException {
         return new Patient(
-                rs.getInt("Patient_id"),
-                rs.getString("Fname"),
-                rs.getString("Lname"),
-                Gender.valueof(rs.getString("Gender")),
-                rs.getDate("Date_of_birth").toLocalDate(),
-                rs.getString("Contact_no"),
-                rs.getString("Address"));
+                rs.getInt("patient_Id"),
+                rs.getString("FName"),
+                rs.getString("LName"),
+                Gender.fromMessage(rs.getString("Gender")),
+                rs.getDate("Date_Of_Birth").toLocalDate(),
+                rs.getString("contact_No"),
+                rs.getString("pt_Address"));
     }
 
 }

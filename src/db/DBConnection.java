@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class DbConnection {
+public class DBConnection {
 
     private static final String URL = "jdbc:mysql://localhost:3306/hospitaldb?serverTimezone=UTC";
     private static final String USER     = "root";
@@ -12,7 +12,7 @@ public class DbConnection {
 
     private static Connection connection;
 
-    private DbConnection() {}
+    private DBConnection() {}
 
     public static Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
