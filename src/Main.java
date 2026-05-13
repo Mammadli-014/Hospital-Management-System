@@ -1,11 +1,20 @@
-import db.DBConnection;
+import view.MainFrame;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import javax.swing.SwingUtilities;
 
 public class Main {
-    public static void main(String[] args) throws SQLException {
-        Connection connection = DBConnection.getConnection();
+    public static void main(String[] args) {
+
+        SwingUtilities.invokeLater(() -> {
+            try {
+                MainFrame frame = new MainFrame();
+                frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+
 
     }
 }

@@ -11,8 +11,10 @@ public class MedicalRecord extends MedicalEvent{
     private String diagnosis;
     private String treatment;
 
+    private LocalDate next_visit;
+
     public MedicalRecord(int id, int patientId, LocalDate date, int doctId, int weight, int height,
-     String bloodPresure, int temp, String diagnosis, String treatment) {
+     String bloodPresure, int temp, String diagnosis, String treatment,LocalDate next_visit) {
         super(id, patientId, date);
         this.doctId = doctId;
         this.weight = weight;
@@ -21,6 +23,7 @@ public class MedicalRecord extends MedicalEvent{
         this.temp = temp;
         this.diagnosis = diagnosis;
         this.treatment = treatment;
+        this.next_visit= next_visit;
     }
 
     public int getDoctId() {
@@ -78,4 +81,14 @@ public class MedicalRecord extends MedicalEvent{
     public void setTreatment(String treatment) {
         this.treatment = treatment;
     }
+
+    public LocalDate getNext_visit() {
+        return next_visit;
+    }
+
+    public void setNext_visit(LocalDate next_visit) {
+        this.next_visit = next_visit;
+    }
+
+
 }

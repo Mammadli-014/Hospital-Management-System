@@ -1,31 +1,78 @@
 package controller;
 
+import dao.*;
+import enums.*;
+import event.AppointmentRecord;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class AppointmentController {
-    private static AppointmentController appointmentDAO;
-    private List<AppointmentController> appointmentDAOList;
+
+    private static AppointmentController instance;
+    private final AppointmentDAO appointmentDAO;
+    private final PatientDAO     patientDAO;
+    private final DoctorDAO      doctorDAO;
 
     private AppointmentController() {
+        this.appointmentDAO = new AppointmentDAO();
+        this.patientDAO     = new PatientDAO();
+        this.doctorDAO      = new DoctorDAO();
     }
 
-    public AppointmentController getInstance(){
-        if(appointmentDAO == null) appointmentDAO=new AppointmentController();
-        return appointmentDAO;
+    public static AppointmentController getInstance() {
+        if (instance == null) instance = new AppointmentController();
+        return instance;
     }
 
-    public String createAppointment(int patientId, int doctorId, LocalDateTime dt) {
-        if (appointmentDAO.existsConflict(doctorId, dt)) {
-            return "Bu saatte doktorun randevusu var!";
-        }
-        if (dt.isBefore(LocalDateTime.now())) {
-            return "Geçmiş tarihe randevu oluşturulamaz!";
-        }
-        //appointmentDAOList.add();
-        return "";
+    public String createAppointment(int patientId, int doctorId, LocalDateTime dt, String reason,
+                                    int amount, PaymentType pType, AppointmentType aType) {
+
+        if (dt.isBefore(LocalDateTime.now()))
+            return "ERROR: Cannot create appointment in the past!";
+
+        if (patientDAO.findById(patientId) == null)
+            return "ERROR: Patient not found! (ID: " + patientId + ")";
+
+        if (doctorDAO.findById(doctorId) == null)
+            return "ERROR: Doctor not found! (ID: " + doctorId + ")";
+
+        if (appointmentDAO.existsConflict(doctorId, dt))
+            return "ERROR: Doctor already has an appointment at this time!";
+
+        if (appointmentDAO.patientHasAppointmentOnDay(patientId, doctorId, dt.toLocalDate()))
+            return "ERROR: Patient already has an appointment with this doctor today!";
+
+        AppointmentRecord record = new AppointmentRecord(
+                0, patientId, dt.toLocalDate(), doctorId, reason, amount, AppStatus.SCHEDULED, pType, aType
+        );
+
+        boolean success = appointmentDAO.add(record);
+        return success ? "SUCCESS: Appointment created." : "ERROR: Failed to save appointment.";
     }
-    private boolean existsConflict(int doctorId, LocalDateTime dt){
-        return false;
+
+    public String cancelAppointment(int appointmentId) {
+        AppointmentRecord existing = appointmentDAO.findById(appointmentId);
+        if (existing == null)
+            return "ERROR: Appointment not found!";
+
+        if (existing.getDate().isBefore(LocalDate.now()))
+            return "ERROR: Past appointments cannot be cancelled!";
+
+        boolean success = appointmentDAO.delete(appointmentId);
+        return success ? "SUCCESS: Appointment cancelled." : "ERROR: Cancellation failed.";
+    }
+
+    public List<AppointmentRecord> findAll() {
+        return appointmentDAO.findAll();
+    }
+
+    public List<AppointmentRecord> findByPatient(int patientId) {
+        return appointmentDAO.findByPatient(patientId);
+    }
+
+    public List<AppointmentRecord> findByDoctor(int doctorId) {
+        return appointmentDAO.findByDoctor(doctorId);
     }
 }

@@ -1,7 +1,10 @@
 package enums;
 
 public enum AppStatus {
-    COMPLETED("Completed"), CANCELLED("Cancelled"), SCHEDULED("Scheduled"), NO_SHOW("No Show");
+    COMPLETED("Completed"),
+    CANCELLED("Cancelled"),
+    SCHEDULED("Scheduled"),
+    NO_SHOW("No-Show");
     private String message;
 
     AppStatus(String message) {

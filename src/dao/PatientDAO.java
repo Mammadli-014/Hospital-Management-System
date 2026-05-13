@@ -11,7 +11,7 @@ import java.util.List;
 public class PatientDAO {
 
     public boolean addPatient(Patient patient) {
-        String sql = "INSERT INTO Patients (FName,LName,Gender,Date_Of_Birth,contact_No,pt_Address)" + "VALUES (?,?,?,?,?,?)";
+        String sql = "INSERT INTO patients (FName,LName,Gender,Date_Of_Birth,contact_No,pt_Address)" + "VALUES (?,?,?,?,?,?)";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement p = con.prepareStatement(sql)) {
             p.setString(1, patient.getFname());
@@ -28,7 +28,7 @@ public class PatientDAO {
     }
 
     public boolean updatePatient(Patient p) {
-        String sql = "UPDATE Patients SET Fname=?, Lname=?, Gender=?, Contact=?, Address=? " +
+        String sql = "UPDATE patients SET Fname=?, Lname=?, Gender=?, Contact=?, Address=? " +
                 "WHERE patient_Id=?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -47,7 +47,7 @@ public class PatientDAO {
     }
 
     public boolean deletePatient(int id) {
-        String sql = "DELETE FROM Patients WHERE Patient_id = ?";
+        String sql = "DELETE FROM patients WHERE Patient_id = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -59,7 +59,7 @@ public class PatientDAO {
     }
 
     public Patient findById(int id) {
-        String sql = "SELECT * FROM Patients WHERE Patient_id = ?";
+        String sql = "SELECT * FROM patients WHERE Patient_id = ?";
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -73,22 +73,10 @@ public class PatientDAO {
         return null;
     }
 
-    public int countNurse() {
-        String sql = "Select count(*) from Patients";
-        try (Connection con = DBConnection.getConnection();
-             Statement statement = con.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql);
-        ) {
-            if (resultSet.next()) return resultSet.getInt(1);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
 
     public List<Patient> findAll() {
         List<Patient> list = new ArrayList<>();
-        String sql = "SELECT * FROM Patients ORDER BY Fname, Lname";
+        String sql = "SELECT * FROM patients";
 
         try (Connection con = DBConnection.getConnection();
              Statement st = con.createStatement();
@@ -103,7 +91,7 @@ public class PatientDAO {
 
     public List<Patient> search(String keyword) {
         List<Patient> list = new ArrayList<>();
-        String sql = "SELECT * FROM Patients WHERE Fname LIKE ? OR Lname LIKE ? OR Patient_id LIKE ?";
+        String sql = "SELECT * FROM patients WHERE Fname LIKE ? OR Lname LIKE ? OR Patient_id LIKE ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             String k = "%" + keyword + "%";

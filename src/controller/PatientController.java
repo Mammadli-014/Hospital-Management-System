@@ -11,7 +11,7 @@ public class PatientController {
     private PatientController() {
         patientDAO=new PatientDAO();
     }
-    public PatientController getInstance(){
+    public static PatientController getInstance(){
         if(patientController == null) patientController=new PatientController();
         return patientController;
     }

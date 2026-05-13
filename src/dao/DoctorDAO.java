@@ -12,16 +12,16 @@ public class DoctorDAO {
 
     public boolean add(Doctor d) {
         String sql = "INSERT INTO Doctor (FName, LName, Gender, Surgeron_type, Dept_id, Office_no, Contact_no) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, d.getFname());
             ps.setString(2, d.getLname());
-            ps.setString(3, String.valueOf(d.getGender()));
+            ps.setString(3, d.getGender() != null ? d.getGender().name() : null);
             ps.setString(4, d.getSurgeonType());
             ps.setInt(5, d.getDeptId());
             ps.setString(6, d.getOfficeNo());
-            ps.setString(7,d.getContact());
+            ps.setString(7, d.getContact());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -31,17 +31,17 @@ public class DoctorDAO {
 
     public boolean update(Doctor d) {
         String sql = "UPDATE Doctor SET FName=?, LName=?, Gender=?, Surgeron_type=?, " +
-                "Dept_id=?, Office_no=?, Contact_no = ? WHERE Doctor_id=?";
+                "Dept_id=?, Office_no=?, Contact_no=? WHERE Doctor_id=?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, d.getFname());
             ps.setString(2, d.getLname());
-            ps.setString(3, String.valueOf(d.getGender().getMessage()));
+            ps.setString(3, d.getGender() != null ? d.getGender().name() : null);
             ps.setString(4, d.getSurgeonType());
             ps.setInt(5, d.getDeptId());
             ps.setString(6, d.getOfficeNo());
-            ps.setInt(7, d.getId());
-            ps.setString(8,d.getContact());
+            ps.setString(7, d.getContact());
+            ps.setInt(8, d.getId());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -66,8 +66,9 @@ public class DoctorDAO {
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, doctorId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return mapRow(rs);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return mapRow(rs);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -76,7 +77,7 @@ public class DoctorDAO {
 
     public List<Doctor> findAll() {
         List<Doctor> list = new ArrayList<>();
-        String sql = "SELECT * FROM Doctor ORDER BY LName, FName";
+        String sql = "SELECT * FROM Doctor";
         try (Connection con = DBConnection.getConnection();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
@@ -93,8 +94,9 @@ public class DoctorDAO {
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, deptId);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) list.add(mapRow(rs));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(mapRow(rs));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -107,8 +109,9 @@ public class DoctorDAO {
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, "%" + type + "%");
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) list.add(mapRow(rs));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(mapRow(rs));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

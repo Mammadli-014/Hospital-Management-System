@@ -3,7 +3,7 @@ package model;
 import enums.AppointmentType;
 
 public enum Gender {
-    MALE("Male"), FEMALE("Female");
+    MALE("M"), FEMALE("F");
     private String message;
 
     Gender(String message) {
@@ -12,8 +12,8 @@ public enum Gender {
 
     public static Gender valueof(String gender) {
         return switch (gender) {
-            case "Male" -> MALE;
-            case "Female" -> FEMALE;
+            case "M" -> MALE;
+            case "F" -> FEMALE;
             default -> null;
         };
     }
