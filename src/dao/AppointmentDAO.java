@@ -85,7 +85,7 @@ public class AppointmentDAO {
 
     public List<AppointmentRecord> findAll() {
         List<AppointmentRecord> list = new ArrayList<>();
-        String sql = "SELECT * FROM Appointment ORDER BY appointment_Date DESC";
+        String sql = "SELECT * FROM Appointment";
         try (Connection con = DBConnection.getConnection();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(sql)) {

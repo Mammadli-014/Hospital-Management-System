@@ -19,10 +19,10 @@ public class BedRecordDAO {
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setInt(1, record.getNo()); // AdmissionRecord'dan gelen yatak/oda no
+            ps.setInt(1, record.getNo());
             ps.setInt(2, record.getPatientId());
             ps.setInt(3, record.getNurseNo());
-            ps.setDate(4, Date.valueOf(record.getDate())); // MedicalEvent'ten gelen admission_date
+            ps.setDate(4, Date.valueOf(record.getDate()));
             ps.setDate(5, record.getEndingDate() != null ? Date.valueOf(record.getEndingDate()) : null);
             ps.setInt(6, record.getAmount());
             ps.setString(7, record.getPaymentType() != null ? record.getPaymentType().name() : null);
@@ -57,7 +57,7 @@ public class BedRecordDAO {
 
     public List<BedRecord> findAll() {
         List<BedRecord> list = new ArrayList<>();
-        String sql = "SELECT * FROM bedrecords ORDER BY admission_Date DESC";
+        String sql = "SELECT * FROM bedrecords";
         try (Connection con = DBConnection.getConnection();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
@@ -152,24 +152,5 @@ public class BedRecordDAO {
                 rs.getInt("amount"),
                 PaymentType.fromMessage(rs.getString("mode_of_payment"))
         );
-    }
-
-    public void debugPaymentValues() {
-        String sql = "SELECT DISTINCT mode_of_payment FROM bedrecords";
-
-        try (Connection con = db.DBConnection.getConnection();
-             Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-
-            System.out.println("--- Database Payment Values ---");
-            while (rs.next()) {
-                String value = rs.getString("mode_of_payment");
-                System.out.println("Value in DB: [" + value + "]");
-            }
-            System.out.println("-------------------------------");
-
-        } catch (SQLException e) {
-            System.out.println("Error while reading DB: " + e.getMessage());
-        }
     }
 }

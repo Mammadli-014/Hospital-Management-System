@@ -11,14 +11,14 @@ import java.util.List;
 public class DoctorDAO {
 
     public boolean add(Doctor d) {
-        String sql = "INSERT INTO Doctor (FName, LName, Gender, Surgeron_type, Dept_id, Office_no, Contact_no) " +
+        String sql = "INSERT INTO Doctor (FName, LName, Gender, surgeon_type, dept_Id, office_No, contact_No) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, d.getFname());
             ps.setString(2, d.getLname());
             ps.setString(3, d.getGender() != null ? d.getGender().getMessage() : null);
-            ps.setString(4, d.getSurgeonType());
+            ps.setString(4, d.getSurgeonType() != null ? d.getSurgeonType() : null);
             ps.setInt(5, d.getDeptId());
             ps.setString(6, d.getOfficeNo());
             ps.setString(7, d.getContact());
@@ -49,8 +49,9 @@ public class DoctorDAO {
         }
     }
 
+
     public boolean delete(int doctorId) {
-        String sql = "DELETE FROM Doctor WHERE Doctor_id=?";
+        String sql = "DELETE FROM Doctor WHERE Doct_Id=?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, doctorId);
@@ -62,7 +63,7 @@ public class DoctorDAO {
     }
 
     public Doctor findById(int doctorId) {
-        String sql = "SELECT * FROM Doctor WHERE Doctor_id=?";
+        String sql = "SELECT * FROM Doctor WHERE Doct_Id=?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, doctorId);

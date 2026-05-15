@@ -64,7 +64,7 @@ public class SurgeryDAO {
 
     public List<SurgeryRecord> findAll() {
         List<SurgeryRecord> list = new ArrayList<>();
-        String sql = "SELECT * FROM surgeryrecord ORDER BY surgery_Date DESC, start_Time DESC";
+        String sql = "SELECT * FROM surgeryrecord";
         try (Connection con = DBConnection.getConnection();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
@@ -149,7 +149,6 @@ public class SurgeryDAO {
         } catch (SQLException e) { e.printStackTrace(); }
         return 0;
     }
-
 
     private SurgeryRecord mapRow(ResultSet rs) throws SQLException {
         LocalTime startTime = rs.getTime("start_Time") != null ? rs.getTime("start_Time").toLocalTime() : null;

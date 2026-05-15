@@ -17,7 +17,6 @@ public class MedicalRecordDAO {
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setInt(1, record.getPatientId());
             ps.setDate(2, Date.valueOf(record.getDate()));
             ps.setInt(3, record.getDoctId());
@@ -63,7 +62,7 @@ public class MedicalRecordDAO {
 
     public List<MedicalRecord> findAll() {
         List<MedicalRecord> list = new ArrayList<>();
-        String sql = "SELECT * FROM medicalrecord ORDER BY visit_Date DESC";
+        String sql = "SELECT * FROM medicalrecord";
         try (Connection con = DBConnection.getConnection();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
