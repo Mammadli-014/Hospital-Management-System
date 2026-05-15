@@ -52,6 +52,17 @@ public class AppointmentController {
         return success ? "SUCCESS: Appointment created." : "ERROR: Failed to save appointment.";
     }
 
+    public String deleteAppointment(int appId){
+        AppointmentRecord existing = appointmentDAO.findById(appId);
+        if (existing == null)
+            return "ERROR: Appointment not found!";
+
+        if (existing.getDate().isBefore(LocalDate.now()))
+            return "ERROR: Past appointments cannot be deleted!";
+
+        boolean success = appointmentDAO.deleteAppointment(appId);
+        return success ? "SUCCESS: Appointment deleted." : "ERROR: Deletion failed.";
+    }
     public String cancelAppointment(int appointmentId) {
         AppointmentRecord existing = appointmentDAO.findById(appointmentId);
         if (existing == null)
@@ -60,7 +71,7 @@ public class AppointmentController {
         if (existing.getDate().isBefore(LocalDate.now()))
             return "ERROR: Past appointments cannot be cancelled!";
 
-        boolean success = appointmentDAO.delete(appointmentId);
+        boolean success = appointmentDAO.cancelAppointment(appointmentId,AppStatus.CANCELLED);
         return success ? "SUCCESS: Appointment cancelled." : "ERROR: Cancellation failed.";
     }
 
@@ -75,4 +86,5 @@ public class AppointmentController {
     public List<AppointmentRecord> findByDoctor(int doctorId) {
         return appointmentDAO.findByDoctor(doctorId);
     }
+
 }

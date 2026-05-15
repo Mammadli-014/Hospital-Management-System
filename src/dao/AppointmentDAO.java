@@ -35,13 +35,37 @@ public class AppointmentDAO {
         }
     }
 
-    public boolean delete(int appointmentId) {
-        String sql = "DELETE FROM Appointment WHERE appoIntment_Id=?";
-        try (Connection con = DBConnection.getConnection();
+    public boolean cancelAppointment(int appointmentId, AppStatus newStatus) {
+        String sql = "UPDATE appointment SET appointment_status = ? WHERE appointment_Id = ?";
+
+        try (Connection con = db.DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, appointmentId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) { e.printStackTrace(); return false; }
+
+            ps.setString(1, newStatus.name());
+            ps.setInt(2, appointmentId);
+
+            int rowsAffected = ps.executeUpdate();
+
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteAppointment(int appId){
+        String sql = "DELETE from appointment WHERE appointment_Id = ?";
+
+        try (Connection con = db.DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, appId);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean existsConflict(int doctorId, LocalDateTime dt) {

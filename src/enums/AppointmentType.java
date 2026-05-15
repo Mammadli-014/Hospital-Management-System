@@ -13,12 +13,19 @@ public enum AppointmentType{
         return message;
     }
 
-    public static AppointmentType fromMessage(String message) {
+    public static AppointmentType fromMessage(String input) {
+        if (input == null || input.isBlank()) return null;
+
         for (AppointmentType at : values()) {
-            if (at.message.equalsIgnoreCase(message)) {
+            if (at.message.equalsIgnoreCase(input)) {
+                return at;
+            }
+            if (at.name().equalsIgnoreCase(input.replace(" ", "_"))) {
                 return at;
             }
         }
-        throw new IllegalArgumentException("Unknown Appointment type: " + message);
+
+        System.err.println("Warning: Unknown Appointment type found in DB: " + input);
+        return IN_PERSON;
     }
 }

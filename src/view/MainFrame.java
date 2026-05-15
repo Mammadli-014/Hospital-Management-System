@@ -19,7 +19,6 @@ import java.util.List;
 
 public class MainFrame extends JFrame {
 
-    // ── Palette ───────────────────────────────────────────────────────────────
     private static final Color BG         = new Color(0xF8F9FB);
     private static final Color WHITE      = Color.WHITE;
     private static final Color SIDEBAR    = new Color(0x0F172A);
@@ -34,14 +33,13 @@ public class MainFrame extends JFrame {
     private static final Color ROW_ALT    = new Color(0xF8FAFC);
     private static final Color ROW_SEL    = new Color(0xEFF6FF);
 
-    // ── Fonts ─────────────────────────────────────────────────────────────────
     private static final Font FONT_TITLE  = new Font("Segoe UI", Font.BOLD,  20);
     private static final Font FONT_BODY   = new Font("Segoe UI", Font.PLAIN, 13);
     private static final Font FONT_SMALL  = new Font("Segoe UI", Font.PLAIN, 12);
     private static final Font FONT_BOLD   = new Font("Segoe UI", Font.BOLD,  13);
     private static final Font FONT_NAV    = new Font("Segoe UI", Font.PLAIN, 13);
 
-    private final JPanel    contentPanel;
+    private final JPanel     contentPanel;
     private final CardLayout cardLayout;
 
     private final PatientDAO patientDAO = new PatientDAO();
@@ -51,7 +49,6 @@ public class MainFrame extends JFrame {
     private JLabel lblPatientStat, lblDoctorStat, lblBedStat,
             lblAppointStat, lblAvailBedStat, lblNurseStat;
 
-    // Active nav tracking
     private JPanel activeNavItem = null;
 
     public MainFrame() {
@@ -78,7 +75,6 @@ public class MainFrame extends JFrame {
         contentPanel.add(buildNursePanel(),     "nurses");
 
         add(contentPanel, BorderLayout.CENTER);
-
         updateDashboardStats();
         cardLayout.show(contentPanel, "dashboard");
     }
@@ -92,7 +88,6 @@ public class MainFrame extends JFrame {
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         sidebar.setPreferredSize(new Dimension(220, 0));
 
-        // Logo
         JPanel logoArea = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 18));
         logoArea.setBackground(SIDEBAR);
         logoArea.setMaximumSize(new Dimension(220, 64));
@@ -106,33 +101,30 @@ public class MainFrame extends JFrame {
         logoArea.add(logoTxt);
         sidebar.add(logoArea);
 
-        // Divider
         sidebar.add(sidebarDivider());
         sidebar.add(Box.createVerticalStrut(8));
 
-        // Nav section
         sidebar.add(navLabel("OVERVIEW"));
-        JPanel dashBtn = navItem("Dashboard", "dashboard", false);
+        JPanel dashBtn = navItem("Dashboard", "dashboard");
         sidebar.add(dashBtn);
         setNavActive(dashBtn);
         activeNavItem = dashBtn;
 
         sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(navLabel("MANAGEMENT"));
-        sidebar.add(navItem("Patients",        "patients",      false));
-        sidebar.add(navItem("Doctors",         "doctors",       false));
-        sidebar.add(navItem("Nurses",          "nurses",        false));
+        sidebar.add(navItem("Patients",        "patients"));
+        sidebar.add(navItem("Doctors",         "doctors"));
+        sidebar.add(navItem("Nurses",          "nurses"));
 
         sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(navLabel("RECORDS"));
-        sidebar.add(navItem("Medical Records", "medrecords",    false));
-        sidebar.add(navItem("Bed Admissions",  "beds",          false));
-        sidebar.add(navItem("Appointments",    "appointments",  false));
-        sidebar.add(navItem("Surgery",         "surgery",       false));
+        sidebar.add(navItem("Medical Records", "medrecords"));
+        sidebar.add(navItem("Bed Admissions",  "beds"));
+        sidebar.add(navItem("Appointments",    "appointments"));
+        sidebar.add(navItem("Surgery",         "surgery"));
 
         sidebar.add(Box.createVerticalGlue());
 
-        // Bottom version
         JLabel ver = new JLabel("v1.0  ·  MySQL", SwingConstants.CENTER);
         ver.setFont(FONT_SMALL);
         ver.setForeground(new Color(0x475569));
@@ -143,14 +135,13 @@ public class MainFrame extends JFrame {
         return sidebar;
     }
 
-    private JPanel navItem(String label, String card, boolean active) {
+    private JPanel navItem(String label, String card) {
         JPanel item = new JPanel(new BorderLayout());
         item.setBackground(SIDEBAR);
         item.setMaximumSize(new Dimension(220, 40));
         item.setPreferredSize(new Dimension(220, 40));
         item.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        // Left indicator bar
         JPanel bar = new JPanel();
         bar.setPreferredSize(new Dimension(3, 40));
         bar.setBackground(SIDEBAR);
@@ -164,16 +155,10 @@ public class MainFrame extends JFrame {
 
         item.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-                if (activeNavItem != item) {
-                    item.setBackground(SIDEBAR_HV);
-                    lbl.setForeground(new Color(0xCBD5E1));
-                }
+                if (activeNavItem != item) { item.setBackground(SIDEBAR_HV); lbl.setForeground(new Color(0xCBD5E1)); }
             }
             public void mouseExited(MouseEvent e) {
-                if (activeNavItem != item) {
-                    item.setBackground(SIDEBAR);
-                    lbl.setForeground(new Color(0x94A3B8));
-                }
+                if (activeNavItem != item) { item.setBackground(SIDEBAR); lbl.setForeground(new Color(0x94A3B8)); }
             }
             public void mouseClicked(MouseEvent e) {
                 if (activeNavItem != null) setNavInactive(activeNavItem);
@@ -183,7 +168,6 @@ public class MainFrame extends JFrame {
                 cardLayout.show(contentPanel, card);
             }
         });
-
         return item;
     }
 
@@ -227,7 +211,6 @@ public class MainFrame extends JFrame {
         p.setBackground(BG);
         p.setBorder(BorderFactory.createEmptyBorder(32, 32, 32, 32));
 
-        // Header
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(BG);
         JLabel title = new JLabel("Dashboard");
@@ -239,7 +222,6 @@ public class MainFrame extends JFrame {
         header.add(title, BorderLayout.NORTH);
         header.add(sub,   BorderLayout.SOUTH);
 
-        // Stats grid
         lblPatientStat  = new JLabel("0");
         lblDoctorStat   = new JLabel("0");
         lblNurseStat    = new JLabel("0");
@@ -249,12 +231,12 @@ public class MainFrame extends JFrame {
 
         JPanel grid = new JPanel(new GridLayout(2, 3, 16, 16));
         grid.setBackground(BG);
-        grid.add(statCard("Total Patients",   lblPatientStat,  ACCENT,                    "Registered patients"));
-        grid.add(statCard("Total Doctors",    lblDoctorStat,   new Color(0x8B5CF6),        "Active doctors"));
-        grid.add(statCard("Total Nurses",     lblNurseStat,    new Color(0x06B6D4),        "Active nurses"));
-        grid.add(statCard("Bed Admissions",   lblBedStat,      DANGER,                    "Total admissions"));
-        grid.add(statCard("Appointments",     lblAppointStat,  new Color(0xF59E0B),        "Scheduled"));
-        grid.add(statCard("Available Beds",   lblAvailBedStat, ACCENT2,                   "Ready for admission"));
+        grid.add(statCard("Total Patients",  lblPatientStat,  ACCENT,                 "Registered patients"));
+        grid.add(statCard("Total Doctors",   lblDoctorStat,   new Color(0x8B5CF6),    "Active doctors"));
+        grid.add(statCard("Total Nurses",    lblNurseStat,    new Color(0x06B6D4),    "Active nurses"));
+        grid.add(statCard("Bed Admissions",  lblBedStat,      DANGER,                 "Total admissions"));
+        grid.add(statCard("Appointments",    lblAppointStat,  new Color(0xF59E0B),    "Scheduled"));
+        grid.add(statCard("Available Beds",  lblAvailBedStat, ACCENT2,                "Ready for admission"));
 
         p.add(header, BorderLayout.NORTH);
         p.add(grid,   BorderLayout.CENTER);
@@ -267,7 +249,7 @@ public class MainFrame extends JFrame {
         lblDoctorStat.setText(String.valueOf(getCount("doctor")));
         lblNurseStat.setText(String.valueOf(getCount("nurse")));
         lblBedStat.setText(String.valueOf(getCount("bedrecords")));
-        lblAppointStat.setText(String.valueOf(getCount("appointment")));
+        lblAppointStat.setText(String.valueOf(getCountApp()));
         lblAvailBedStat.setText(String.valueOf(AdmissionController.getInstance().getAvailableBeds().size()));
     }
 
@@ -275,6 +257,16 @@ public class MainFrame extends JFrame {
         try (Connection con = DBConnection.getConnection();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM " + table)) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    private int getCountApp() {
+        String sql = "select count(*) from appointment where appointment_status = \"Scheduled\"";
+        try (Connection con = DBConnection.getConnection();
+             Statement st = con.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
             if (rs.next()) return rs.getInt(1);
         } catch (SQLException e) { e.printStackTrace(); }
         return 0;
@@ -288,9 +280,7 @@ public class MainFrame extends JFrame {
 
         DefaultTableModel model = new DefaultTableModel(
                 new String[]{"Patient ID","First Name","Last Name","Gender","Date of Birth","Contact No","Address"}, 0
-        ) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
-        };
+        ) { @Override public boolean isCellEditable(int r, int c) { return false; } };
         JTable table = styledTable(model);
         addTableDetailSupport(table);
         refreshPatientTable(model);
@@ -301,17 +291,12 @@ public class MainFrame extends JFrame {
             String kw = searchField.getText().trim();
             model.setRowCount(0);
             Integer id = tryParse(kw);
-            if (id != null) {
-                Patient found = patientDAO.findById(id);
-                if (found != null) { model.addRow(patientRow(found)); return; }
-            }
+            if (id != null) { Patient found = patientDAO.findById(id); if (found != null) { model.addRow(patientRow(found)); return; } }
             patientDAO.findAll().stream()
-                    .filter(pt -> pt.getFname().toLowerCase().contains(kw.toLowerCase())
-                            || pt.getLname().toLowerCase().contains(kw.toLowerCase()))
+                    .filter(pt -> pt.getFname().toLowerCase().contains(kw.toLowerCase()) || pt.getLname().toLowerCase().contains(kw.toLowerCase()))
                     .forEach(pt -> model.addRow(patientRow(pt)));
         });
 
-        // ── Show All button ──
         JButton showAllBtn = showAllBtn();
         showAllBtn.addActionListener(e -> refreshPatientTable(model));
 
@@ -320,13 +305,7 @@ public class MainFrame extends JFrame {
         JButton delBtn = dangerBtn("Delete");
         delBtn.addActionListener(ev -> {
             int row = table.getSelectedRow();
-            if (row >= 0) {
-                if (confirmDelete()) {
-                    patientDAO.deletePatient((int) model.getValueAt(row, 0));
-                    refreshPatientTable(model);
-                    updateDashboardStats();
-                }
-            }
+            if (row >= 0 && confirmDelete()) { patientDAO.deletePatient((int) model.getValueAt(row, 0)); refreshPatientTable(model); updateDashboardStats(); }
         });
 
         p.add(toolbar(searchField, searchBtn, showAllBtn, addBtn, delBtn), BorderLayout.NORTH);
@@ -370,9 +349,7 @@ public class MainFrame extends JFrame {
 
         DefaultTableModel model = new DefaultTableModel(
                 new String[]{"Doctor ID","First Name","Last Name","Specialty","Dept ID","Office","Contact"}, 0
-        ) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
-        };
+        ) { @Override public boolean isCellEditable(int r, int c) { return false; } };
         JTable table = styledTable(model);
         addTableDetailSupport(table);
         refreshDoctorTable(model);
@@ -388,7 +365,6 @@ public class MainFrame extends JFrame {
                     .forEach(d -> model.addRow(doctorRow(d)));
         });
 
-        // ── Show All button ──
         JButton showAllBtn = showAllBtn();
         showAllBtn.addActionListener(e -> refreshDoctorTable(model));
 
@@ -440,9 +416,7 @@ public class MainFrame extends JFrame {
 
         DefaultTableModel model = new DefaultTableModel(
                 new String[]{"Nurse ID","First Name","Last Name","Gender","Dept ID","Contact"}, 0
-        ) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
-        };
+        ) { @Override public boolean isCellEditable(int r, int c) { return false; } };
         JTable table = styledTable(model);
         addTableDetailSupport(table);
         refreshNurseTable(model);
@@ -460,7 +434,6 @@ public class MainFrame extends JFrame {
                     .forEach(n -> model.addRow(nurseRow(n)));
         });
 
-        // ── Show All button ──
         JButton showAllBtn = showAllBtn();
         showAllBtn.addActionListener(e -> refreshNurseTable(model));
 
@@ -512,9 +485,7 @@ public class MainFrame extends JFrame {
 
         DefaultTableModel model = new DefaultTableModel(
                 new String[]{"Record ID","Patient ID","Doctor ID","Diagnosis","Date","Weight","Height","BP","Temp","Treatment"}, 0
-        ) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
-        };
+        ) { @Override public boolean isCellEditable(int r, int c) { return false; } };
         JTable table = styledTable(model);
         addTableDetailSupport(table);
         refreshMedTable(model);
@@ -529,7 +500,6 @@ public class MainFrame extends JFrame {
                     .forEach(r -> model.addRow(medRow(r)));
         });
 
-        // ── Show All button ──
         JButton showAllBtn = showAllBtn();
         showAllBtn.addActionListener(e -> refreshMedTable(model));
 
@@ -558,19 +528,13 @@ public class MainFrame extends JFrame {
     private void showAddMedRecordDialog(DefaultTableModel tableModel) {
         JDialog dlg = dialog("Add Medical Record", 520, 660);
 
-        // ── Searchable Patient picker ──
         List<Patient> allPatients = patientDAO.findAll();
         SearchableComboBox<Patient> patientPicker = new SearchableComboBox<>(
-                allPatients,
-                pt -> pt.getId() + " - " + pt.getFname() + " " + pt.getLname()
-        );
+                allPatients, pt -> pt.getId() + " - " + pt.getFname() + " " + pt.getLname());
 
-        // ── Searchable Doctor picker ──
         List<Doctor> allDoctors = doctorDAO.findAll();
         SearchableComboBox<Doctor> doctorPicker = new SearchableComboBox<>(
-                allDoctors,
-                d -> d.getId() + " - " + d.getFname() + " " + d.getLname()
-        );
+                allDoctors, d -> d.getId() + " - " + d.getFname() + " " + d.getLname());
 
         JTextField we = dlgField(); JTextField he = dlgField();
         JTextField bp = dlgField(); JTextField te = dlgField();
@@ -580,12 +544,10 @@ public class MainFrame extends JFrame {
         JTextField nv = dlgField(); nv.setToolTipText("YYYY-MM-DD (optional)");
 
         Object[][] fds = {
-                {"Patient *", patientPicker},
-                {"Doctor *",  doctorPicker},
-                {"Visit Date (YYYY-MM-DD)",vd},
-                {"Next Visit (YYYY-MM-DD)",nv},
-                {"Weight (kg)",we},{"Height (cm)",he},{"Blood Pressure",bp},
-                {"Temperature",te},{"Diagnosis *",new JScrollPane(dg)},{"Treatment",new JScrollPane(tr)}
+                {"Patient *", patientPicker}, {"Doctor *", doctorPicker},
+                {"Visit Date (YYYY-MM-DD)", vd}, {"Next Visit (YYYY-MM-DD)", nv},
+                {"Weight (kg)", we}, {"Height (cm)", he}, {"Blood Pressure", bp},
+                {"Temperature", te}, {"Diagnosis *", new JScrollPane(dg)}, {"Treatment", new JScrollPane(tr)}
         };
         JButton save = successBtn("Save Record");
         save.addActionListener(e -> {
@@ -595,7 +557,7 @@ public class MainFrame extends JFrame {
                 if (selPatient == null) { JOptionPane.showMessageDialog(dlg, "Please select a patient.", "Validation Error", JOptionPane.WARNING_MESSAGE); return; }
                 if (selDoctor  == null) { JOptionPane.showMessageDialog(dlg, "Please select a doctor.",  "Validation Error", JOptionPane.WARNING_MESSAGE); return; }
                 String nvText = nv.getText().trim();
-                LocalDate nextVisit = (nvText.isEmpty()) ? null : LocalDate.parse(nvText);
+                LocalDate nextVisit = nvText.isEmpty() ? null : LocalDate.parse(nvText);
                 String res = MedicalRecordController.getInstance().addRecord(
                         selPatient.getId(), selDoctor.getId(),
                         dg.getText(), tr.getText(),
@@ -618,9 +580,7 @@ public class MainFrame extends JFrame {
 
         DefaultTableModel model = new DefaultTableModel(
                 new String[]{"Adm ID","Patient ID","Nurse ID","Bed No","Check-in","Check-out","Amount"}, 0
-        ) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
-        };
+        ) { @Override public boolean isCellEditable(int r, int c) { return false; } };
         JTable table = styledTable(model);
         addTableDetailSupport(table);
         refreshBedTable(model);
@@ -635,7 +595,6 @@ public class MainFrame extends JFrame {
                     .forEach(r -> model.addRow(bedRow(r)));
         });
 
-        // ── Show All button ──
         JButton showAllBtn = showAllBtn();
         showAllBtn.addActionListener(e -> refreshBedTable(model));
 
@@ -667,81 +626,43 @@ public class MainFrame extends JFrame {
     }
 
     private void showAddBedDialog(DefaultTableModel tableModel) {
-        JDialog dlg = dialog("Admit Patient to Bed", 520, 500); // Boyutu alanlar için biraz artırdım
+        JDialog dlg = dialog("Admit Patient to Bed", 520, 500);
 
-        // ── Searchable Patient picker ──
         List<Patient> allPatients = patientDAO.findAll();
         SearchableComboBox<Patient> patientPicker = new SearchableComboBox<>(
-                allPatients,
-                pt -> pt.getId() + " - " + pt.getFname() + " " + pt.getLname()
-        );
+                allPatients, pt -> pt.getId() + " - " + pt.getFname() + " " + pt.getLname());
 
-        // ── Searchable Nurse picker ──
         List<Nurse> allNurses = nurseDAO.findAll();
         SearchableComboBox<Nurse> nursePicker = new SearchableComboBox<>(
-                allNurses,
-                n -> n.getId() + " - " + n.getFname() + " " + n.getLname()
-        );
+                allNurses, n -> n.getId() + " - " + n.getFname() + " " + n.getLname());
 
         JTextField bn = dlgField();
         JTextField am = dlgField();
-        JTextField admDate = dlgField();
-        admDate.setText(LocalDate.now().toString()); // Varsayılan bugün
-        JTextField disDate = dlgField();
-        disDate.setToolTipText("YYYY-MM-DD (Leave empty if still admitted)");
-
+        JTextField admDate = dlgField(); admDate.setText(LocalDate.now().toString());
+        JTextField disDate = dlgField(); disDate.setToolTipText("YYYY-MM-DD (Leave empty if still admitted)");
         JComboBox<PaymentType> pt = new JComboBox<>(PaymentType.values());
 
         Object[][] fds = {
-                {"Patient *", patientPicker},
-                {"Nurse *",   nursePicker},
-                {"Bed No *",  bn},
-                {"Admission Date (YYYY-MM-DD) *", admDate},
-                {"Discharge Date (YYYY-MM-DD)", disDate},
-                {"Amount *",  am},
-                {"Payment Type", pt}
+                {"Patient *", patientPicker}, {"Nurse *", nursePicker},
+                {"Bed No *", bn}, {"Admission Date (YYYY-MM-DD) *", admDate},
+                {"Discharge Date (YYYY-MM-DD)", disDate}, {"Amount *", am}, {"Payment Type", pt}
         };
-
         JButton save = successBtn("Admit Patient");
         save.addActionListener(e -> {
             try {
                 Patient selPatient = patientPicker.getSelectedItem();
                 Nurse   selNurse   = nursePicker.getSelectedItem();
-
                 if (selPatient == null) { JOptionPane.showMessageDialog(dlg, "Please select a patient.", "Validation Error", JOptionPane.WARNING_MESSAGE); return; }
                 if (selNurse   == null) { JOptionPane.showMessageDialog(dlg, "Please select a nurse.",   "Validation Error", JOptionPane.WARNING_MESSAGE); return; }
-                if (admDate.getText().trim().isEmpty()) { JOptionPane.showMessageDialog(dlg, "Admission date is required.", "Validation Error", JOptionPane.WARNING_MESSAGE); return; }
-                if (am.getText().trim().isEmpty()) { JOptionPane.showMessageDialog(dlg, "Amount is required.", "Validation Error", JOptionPane.WARNING_MESSAGE); return; }
-
                 LocalDate admissionDate = LocalDate.parse(admDate.getText().trim());
-                String disText = disDate.getText().trim();
-                LocalDate dischargeDate = disText.isEmpty() ? null : LocalDate.parse(disText);
-
-                // Not: Eğer Controller metodun sadece admissionDate alıyorsa,
-                // model nesnesini manuel oluşturup DAO üzerinden veya uygun Controller overloadı ile kaydedebilirsin.
                 String res = AdmissionController.getInstance().admitToBed(
-                        selPatient.getId(),
-                        selNurse.getId(),
-                        Integer.parseInt(bn.getText()),
-                        admissionDate,
-                        Integer.parseInt(am.getText()),
-                        (PaymentType) pt.getSelectedItem()
+                        selPatient.getId(), selNurse.getId(),
+                        Integer.parseInt(bn.getText()), admissionDate,
+                        Integer.parseInt(am.getText()), (PaymentType) pt.getSelectedItem()
                 );
-
-                // Eğer veritabanında dischargeDate'i de hemen set etmek istersen (geçmiş kayıt giriliyorsa),
-                // Controller'da bu alanı destekleyen bir metodun olmalı.
-
-                if (res.startsWith("SUCCESS")) {
-                    refreshBedTable(tableModel);
-                    updateDashboardStats();
-                    dlg.dispose();
-                }
+                if (res.startsWith("SUCCESS")) { refreshBedTable(tableModel); updateDashboardStats(); dlg.dispose(); }
                 else JOptionPane.showMessageDialog(dlg, res, "Validation Error", JOptionPane.WARNING_MESSAGE);
-            } catch (java.time.format.DateTimeParseException ex) {
-                JOptionPane.showMessageDialog(dlg, "Invalid date format. Please use YYYY-MM-DD", "Error", JOptionPane.ERROR_MESSAGE);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(dlg, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            } catch (Exception ex) { JOptionPane.showMessageDialog(dlg, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); }
         });
         layoutDialog(dlg, fds, save);
     }
@@ -754,9 +675,7 @@ public class MainFrame extends JFrame {
 
         DefaultTableModel model = new DefaultTableModel(
                 new String[]{"App ID","Patient ID","Doctor ID","Date","Status","Reason","Type"}, 0
-        ) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
-        };
+        ) { @Override public boolean isCellEditable(int r, int c) { return false; } };
         JTable table = styledTable(model);
         addTableDetailSupport(table);
         refreshAppointTable(model);
@@ -771,15 +690,58 @@ public class MainFrame extends JFrame {
                     .forEach(a -> model.addRow(appointRow(a)));
         });
 
-        // ── Show All button ──
         JButton showAllBtn = showAllBtn();
         showAllBtn.addActionListener(e -> refreshAppointTable(model));
 
         JButton addBtn = successBtn("+ New Appointment");
         addBtn.addActionListener(ev -> showAddAppointDialog(model));
-        JButton delBtn = dangerBtn("Cancel");
 
-        p.add(toolbar(searchField, searchBtn, showAllBtn, addBtn, delBtn), BorderLayout.NORTH);
+// ── CANCEL BUTTON: sadece SCHEDULED ve NO_SHOW → CANCELED ────────────
+        JButton cancelBtn = dangerBtn("Cancel");
+        cancelBtn.addActionListener(ev -> {
+            int row = table.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(this, "Please select an appointment to cancel.", "No Selection", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            Object statusObj = model.getValueAt(row, 4);
+            AppStatus currentStatus = AppStatus.valueOf(statusObj.toString());
+
+            if (currentStatus == AppStatus.COMPLETED) {
+                JOptionPane.showMessageDialog(this, "Completed appointments cannot be cancelled.", "Cannot Cancel", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int appId = (int) model.getValueAt(row, 0);
+            String res = AppointmentController.getInstance().cancelAppointment(appId);
+            JOptionPane.showMessageDialog(this, res);
+            refreshAppointTable(model);
+        });
+
+        // ── DELETE BUTTON: Veritabanından tamamen siler ──────────────────────
+        JButton deleteBtn = dangerBtn("Delete"); // Kırmızı stil
+        deleteBtn.addActionListener(ev -> {
+            int row = table.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(this, "Please select an appointment to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int appId = (int) model.getValueAt(row, 0);
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Are you sure you want to permanently DELETE Appointment ID: " + appId + "?",
+                    "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                String res = AppointmentController.getInstance().deleteAppointment(appId);
+                JOptionPane.showMessageDialog(this, res);
+                refreshAppointTable(model);
+                updateDashboardStats();
+            }
+        });
+
+        // Araç çubuğuna (Toolbar) yeni butonu ekliyoruz
+        p.add(toolbar1(searchField, searchBtn, showAllBtn, addBtn, cancelBtn,deleteBtn), BorderLayout.NORTH);
         p.add(scrollPane(table), BorderLayout.CENTER);
         return p;
     }
@@ -796,19 +758,13 @@ public class MainFrame extends JFrame {
     private void showAddAppointDialog(DefaultTableModel tableModel) {
         JDialog dlg = dialog("Create Appointment", 520, 520);
 
-        // ── Searchable Patient picker ──
         List<Patient> allPatients = patientDAO.findAll();
         SearchableComboBox<Patient> patientPicker = new SearchableComboBox<>(
-                allPatients,
-                pt -> pt.getId() + " - " + pt.getFname() + " " + pt.getLname()
-        );
+                allPatients, pt -> pt.getId() + " - " + pt.getFname() + " " + pt.getLname());
 
-        // ── Searchable Doctor picker ──
         List<Doctor> allDoctors = doctorDAO.findAll();
         SearchableComboBox<Doctor> doctorPicker = new SearchableComboBox<>(
-                allDoctors,
-                d -> d.getId() + " - " + d.getFname() + " " + d.getLname()
-        );
+                allDoctors, d -> d.getId() + " - " + d.getFname() + " " + d.getLname());
 
         JTextField dt = dlgField(); dt.setText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         JTextField rs = dlgField(); JTextField am = dlgField();
@@ -816,10 +772,9 @@ public class MainFrame extends JFrame {
         JComboBox<AppointmentType> ac = new JComboBox<>(AppointmentType.values());
 
         Object[][] fds = {
-                {"Patient *", patientPicker},
-                {"Doctor *",  doctorPicker},
-                {"Date (yyyy-MM-dd HH:mm)",dt},{"Reason",rs},
-                {"Amount",am},{"Payment Type",pc},{"Appointment Type",ac}
+                {"Patient *", patientPicker}, {"Doctor *", doctorPicker},
+                {"Date (yyyy-MM-dd HH:mm)", dt}, {"Reason", rs},
+                {"Amount", am}, {"Payment Type", pc}, {"Appointment Type", ac}
         };
         JButton save = successBtn("Save Appointment");
         save.addActionListener(e -> {
@@ -828,17 +783,12 @@ public class MainFrame extends JFrame {
                 Doctor  selDoctor  = doctorPicker.getSelectedItem();
                 if (selPatient == null) { JOptionPane.showMessageDialog(dlg, "Please select a patient.", "Validation Error", JOptionPane.WARNING_MESSAGE); return; }
                 if (selDoctor  == null) { JOptionPane.showMessageDialog(dlg, "Please select a doctor.",  "Validation Error", JOptionPane.WARNING_MESSAGE); return; }
-                // Accept both "yyyy-MM-dd HH:mm" and "yyyy-MM-dd HH:mm:ss" for robustness
                 String dtText = dt.getText().trim();
-                LocalDateTime parsedDt;
-                if (dtText.length() == 16) {
-                    parsedDt = LocalDateTime.parse(dtText, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-                } else {
-                    parsedDt = LocalDateTime.parse(dtText, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                }
+                LocalDateTime parsedDt = dtText.length() == 16
+                        ? LocalDateTime.parse(dtText, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+                        : LocalDateTime.parse(dtText, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                 String res = AppointmentController.getInstance().createAppointment(
-                        selPatient.getId(), selDoctor.getId(),
-                        parsedDt,
+                        selPatient.getId(), selDoctor.getId(), parsedDt,
                         rs.getText(), Integer.parseInt(am.getText()),
                         (PaymentType) pc.getSelectedItem(), (AppointmentType) ac.getSelectedItem()
                 );
@@ -856,10 +806,8 @@ public class MainFrame extends JFrame {
         JPanel p = mainPanel("Surgery Records", "Surgical procedures and operation history");
 
         DefaultTableModel model = new DefaultTableModel(
-                new String[]{"Surg ID","Patient ID","Surgeon ID","Date","Room","Type","Notes"}, 0
-        ) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
-        };
+                new String[]{"Surg ID","Patient ID","Surgeon ID","Nurse ID","Date","Room","Type","Notes"}, 0
+        ) { @Override public boolean isCellEditable(int r, int c) { return false; } };
         JTable table = styledTable(model);
         addTableDetailSupport(table);
         refreshSurgeryTable(model);
@@ -874,7 +822,6 @@ public class MainFrame extends JFrame {
                     .forEach(s -> model.addRow(surgRow(s)));
         });
 
-        // ── Show All button ──
         JButton showAllBtn = showAllBtn();
         showAllBtn.addActionListener(e -> refreshSurgeryTable(model));
 
@@ -888,7 +835,7 @@ public class MainFrame extends JFrame {
     }
 
     private Object[] surgRow(SurgeryRecord s) {
-        return new Object[]{s.getId(), s.getPatientId(), s.getSurgeonId(), s.getDate(), s.getRoomNo(), s.getSurgeryType(), s.getNotes()};
+        return new Object[]{s.getId(), s.getPatientId(), s.getSurgeonId(), s.getNurseId(), s.getDate(), s.getRoomNo(), s.getSurgeryType(), s.getNotes()};
     }
 
     private void refreshSurgeryTable(DefaultTableModel model) {
@@ -897,21 +844,20 @@ public class MainFrame extends JFrame {
     }
 
     private void showAddSurgeryDialog(DefaultTableModel tableModel) {
-        JDialog dlg = dialog("Add Surgery Record", 520, 540);
+        JDialog dlg = dialog("Add Surgery Record", 520, 600);
 
-        // ── Searchable Patient picker ──
         List<Patient> allPatients = patientDAO.findAll();
         SearchableComboBox<Patient> patientPicker = new SearchableComboBox<>(
-                allPatients,
-                pt -> pt.getId() + " - " + pt.getFname() + " " + pt.getLname()
-        );
+                allPatients, pt -> pt.getId() + " - " + pt.getFname() + " " + pt.getLname());
 
-        // ── Searchable Doctor (Surgeon) picker ──
         List<Doctor> allDoctors = doctorDAO.findAll();
         SearchableComboBox<Doctor> surgeonPicker = new SearchableComboBox<>(
-                allDoctors,
-                d -> d.getId() + " - " + d.getFname() + " " + d.getLname()
-        );
+                allDoctors, d -> d.getId() + " - " + d.getFname() + " " + d.getLname());
+
+        // ── YENİ: Nurse picker ──────────────────────────────────────────────
+        List<Nurse> allNurses = nurseDAO.findAll();
+        SearchableComboBox<Nurse> nursePicker = new SearchableComboBox<>(
+                allNurses, n -> n.getId() + " - " + n.getFname() + " " + n.getLname());
 
         JTextField ty = dlgField();
         JTextField dt = dlgField(); dt.setText(LocalDate.now().toString());
@@ -919,20 +865,25 @@ public class MainFrame extends JFrame {
         JTextArea  nt = new JTextArea(3, 20); nt.setLineWrap(true);
 
         Object[][] fds = {
-                {"Patient *",  patientPicker},
-                {"Surgeon *",  surgeonPicker},
-                {"Surgery Type *",ty},{"Date (YYYY-MM-DD)",dt},
-                {"Room No",rm},{"Notes",new JScrollPane(nt)}
+                {"Patient *",      patientPicker},
+                {"Surgeon *",      surgeonPicker},
+                {"Nurse *",        nursePicker},       // ← YENİ ALAN
+                {"Surgery Type *", ty},
+                {"Date (YYYY-MM-DD)", dt},
+                {"Room No", rm},
+                {"Notes", new JScrollPane(nt)}
         };
         JButton save = successBtn("Save Surgery");
         save.addActionListener(e -> {
             try {
                 Patient selPatient = patientPicker.getSelectedItem();
                 Doctor  selSurgeon = surgeonPicker.getSelectedItem();
+                Nurse   selNurse   = nursePicker.getSelectedItem();
                 if (selPatient == null) { JOptionPane.showMessageDialog(dlg, "Please select a patient.", "Validation Error", JOptionPane.WARNING_MESSAGE); return; }
                 if (selSurgeon == null) { JOptionPane.showMessageDialog(dlg, "Please select a surgeon.", "Validation Error", JOptionPane.WARNING_MESSAGE); return; }
+                if (selNurse   == null) { JOptionPane.showMessageDialog(dlg, "Please select a nurse.",   "Validation Error", JOptionPane.WARNING_MESSAGE); return; }
                 String res = SurgeryController.getInstance().addSurgery(
-                        selPatient.getId(), selSurgeon.getId(), 0,
+                        selPatient.getId(), selSurgeon.getId(), selNurse.getId(),
                         LocalDate.parse(dt.getText()), LocalTime.of(9, 0), LocalTime.of(10, 0),
                         Integer.parseInt(rm.getText()), ty.getText(), nt.getText()
                 );
@@ -944,21 +895,15 @@ public class MainFrame extends JFrame {
     }
 
     // =========================================================================
-    // SEARCHABLE COMBO BOX — generic inner class
+    // SEARCHABLE COMBO BOX
     // =========================================================================
-    /**
-     * A text field that shows a filtered dropdown list of items.
-     * Displays "ID - FirstName LastName" but only sends the ID to the backend.
-     *
-     * @param <T> the model type (Patient, Doctor, …)
-     */
     private class SearchableComboBox<T> extends JPanel {
 
-        private final JTextField      searchField;
-        private final JList<String>   list;
+        private final JTextField             searchField;
+        private final JList<String>          list;
         private final DefaultListModel<String> listModel;
-        private final JPopupMenu      popup;
-        private final List<T>         allItems;
+        private final JPopupMenu             popup;
+        private final List<T>                allItems;
         private final java.util.function.Function<T, String> labelFn;
         private T selectedItem = null;
 
@@ -997,7 +942,6 @@ public class MainFrame extends JFrame {
             popup.add(sp);
             popup.setBorder(BorderFactory.createEmptyBorder());
 
-            // Focus: clear placeholder, show dropdown
             searchField.addFocusListener(new FocusAdapter() {
                 public void focusGained(FocusEvent e) {
                     if (searchField.getText().equals("Type to search…")) {
@@ -1008,28 +952,20 @@ public class MainFrame extends JFrame {
                     showPopup();
                 }
                 public void focusLost(FocusEvent e) {
-                    // Let mouse click on list register before hiding
-                    SwingUtilities.invokeLater(() -> {
-                        if (!list.hasFocus()) popup.setVisible(false);
-                    });
+                    SwingUtilities.invokeLater(() -> { if (!list.hasFocus()) popup.setVisible(false); });
                 }
             });
 
-            // Filter on keystroke
             searchField.getDocument().addDocumentListener(new DocumentListener() {
                 public void insertUpdate(DocumentEvent e)  { filterList(searchField.getText()); }
                 public void removeUpdate(DocumentEvent e)  { filterList(searchField.getText()); }
                 public void changedUpdate(DocumentEvent e) { filterList(searchField.getText()); }
             });
 
-            // Select on click
             list.addMouseListener(new MouseAdapter() {
-                public void mouseClicked(MouseEvent e) {
-                    selectIndex(list.locationToIndex(e.getPoint()));
-                }
+                public void mouseClicked(MouseEvent e) { selectIndex(list.locationToIndex(e.getPoint())); }
             });
 
-            // Select on Enter key
             searchField.addKeyListener(new KeyAdapter() {
                 public void keyPressed(KeyEvent e) {
                     if (e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -1064,35 +1000,26 @@ public class MainFrame extends JFrame {
         }
 
         private void showPopup() {
-            if (!popup.isVisible()) {
-                popup.show(searchField, 0, searchField.getHeight());
-            }
+            if (!popup.isVisible()) popup.show(searchField, 0, searchField.getHeight());
         }
 
         private void selectIndex(int idx) {
             if (idx < 0 || idx >= listModel.size()) return;
             String label = listModel.getElementAt(idx);
-            // Find matching item
             for (T item : allItems) {
-                if (labelFn.apply(item).equals(label)) {
-                    selectedItem = item;
-                    break;
-                }
+                if (labelFn.apply(item).equals(label)) { selectedItem = item; break; }
             }
             searchField.setText(label);
             searchField.setForeground(TEXT_DARK);
             popup.setVisible(false);
         }
 
-        /** Returns the selected model object, or null if none selected. */
         public T getSelectedItem() { return selectedItem; }
     }
 
     // =========================================================================
     // SHARED UI HELPERS
     // =========================================================================
-
-    /** Page header with title + subtitle */
     private JPanel mainPanel(String title, String subtitle) {
         JPanel p = new JPanel(new BorderLayout(0, 16));
         p.setBackground(BG);
@@ -1113,8 +1040,26 @@ public class MainFrame extends JFrame {
         return p;
     }
 
-    /** Toolbar: search field + search btn + show-all btn + gap + action buttons */
-    private JPanel toolbar(JTextField searchField, JButton searchBtn, JButton showAllBtn, JButton addBtn, JButton delBtn) {
+    private JPanel toolbar1(JTextField searchField, JButton searchBtn, JButton showAllBtn,
+                           JButton addBtn, JButton cancelBtn, JButton deleteBtn) {
+        JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        bar.setBackground(BG);
+        bar.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
+
+        searchField.setPreferredSize(new Dimension(260, 34));
+
+        bar.add(searchField);
+        bar.add(searchBtn);
+        bar.add(showAllBtn);
+        bar.add(Box.createHorizontalStrut(16));
+        bar.add(addBtn);
+        bar.add(cancelBtn); // Yeni eklenen 6. parametre (İptal butonu)
+        bar.add(deleteBtn); // Mevcut silme butonu
+
+        return bar;
+    }
+    private JPanel toolbar(JTextField searchField, JButton searchBtn,
+                           JButton showAllBtn, JButton addBtn, JButton delBtn) {
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         bar.setBackground(BG);
         bar.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
@@ -1128,7 +1073,6 @@ public class MainFrame extends JFrame {
         return bar;
     }
 
-    /** "Show All" button — neutral style */
     private JButton showAllBtn() {
         JButton b = new JButton("Show All");
         b.setFont(FONT_BODY);
@@ -1142,7 +1086,6 @@ public class MainFrame extends JFrame {
         return b;
     }
 
-    /** Modern styled table */
     private JTable styledTable(DefaultTableModel model) {
         JTable table = new JTable(model);
         table.setFont(FONT_BODY);
@@ -1175,7 +1118,6 @@ public class MainFrame extends JFrame {
                 return this;
             }
         });
-
         return table;
     }
 
@@ -1189,7 +1131,6 @@ public class MainFrame extends JFrame {
     private JTextField styledSearchField(String placeholder) {
         JTextField f = new JTextField();
         f.setFont(FONT_BODY);
-        f.setForeground(TEXT_DARK);
         f.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(BORDER_CLR, 1, true),
                 BorderFactory.createEmptyBorder(6, 10, 6, 10)
@@ -1216,7 +1157,6 @@ public class MainFrame extends JFrame {
         return f;
     }
 
-    /** Stat card for dashboard */
     private JPanel statCard(String label, JLabel valueLabel, Color color, String subtitle) {
         JPanel card = new JPanel(new BorderLayout(0, 8));
         card.setBackground(WHITE);
@@ -1224,29 +1164,23 @@ public class MainFrame extends JFrame {
                 BorderFactory.createLineBorder(BORDER_CLR, 1, true),
                 BorderFactory.createEmptyBorder(22, 22, 22, 22)
         ));
-
         JLabel top = new JLabel(label);
         top.setFont(FONT_SMALL);
         top.setForeground(TEXT_MID);
-
         valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 34));
         valueLabel.setForeground(color);
-
         JLabel sub = new JLabel(subtitle);
         sub.setFont(FONT_SMALL);
         sub.setForeground(TEXT_LIGHT);
-
         JPanel bottom = new JPanel(new BorderLayout());
         bottom.setBackground(WHITE);
         bottom.add(valueLabel, BorderLayout.CENTER);
         bottom.add(sub, BorderLayout.SOUTH);
-
         card.add(top,    BorderLayout.NORTH);
         card.add(bottom, BorderLayout.CENTER);
         return card;
     }
 
-    // ── Dialog helpers ────────────────────────────────────────────────────────
     private JDialog dialog(String title, int w, int h) {
         JDialog dlg = new JDialog(this, title, true);
         dlg.setSize(w, h);
@@ -1286,7 +1220,6 @@ public class MainFrame extends JFrame {
         dlg.setVisible(true);
     }
 
-    // ── Button helpers ────────────────────────────────────────────────────────
     private JButton primaryBtn(String text) {
         JButton b = new JButton(text);
         b.setFont(FONT_BODY);
@@ -1326,7 +1259,6 @@ public class MainFrame extends JFrame {
         return b;
     }
 
-    // ── Detail popup on double-click ──────────────────────────────────────────
     private void addTableDetailSupport(JTable table) {
         table.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {

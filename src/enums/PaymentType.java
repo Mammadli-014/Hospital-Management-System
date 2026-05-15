@@ -4,7 +4,7 @@ public enum PaymentType {
     CASH("Cash"),
     CARD("Card"),
     INSURANCE("Insurance"),
-    DIGITAL_WALLET("Digital Wallet"); // Java ismi: DIGITAL_WALLET, DB ismi: Digital Wallet
+    DIGITAL_WALLET("Digital Wallet");
 
     private final String dbName;
 
