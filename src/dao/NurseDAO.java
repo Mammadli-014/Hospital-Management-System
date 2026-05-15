@@ -17,7 +17,7 @@ public class NurseDAO {
             p.setInt(1, nurse.getDeptId());
             p.setString(2, nurse.getFname());
             p.setString(3, nurse.getLname());
-            p.setString(4, nurse.getGender() != null ? nurse.getGender().name() : null);
+            p.setString(4, nurse.getGender() != null ? nurse.getGender().getMessage() : null);
             p.setString(5, nurse.getContact());
             return p.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -27,7 +27,6 @@ public class NurseDAO {
     }
 
     public boolean update(Nurse nurse) {
-        // Added missing commas in SQL SET clause
         String sql = "UPDATE nurse SET dept_Id = ?, FName = ?, LName = ?, Gender = ?, contact_no = ? WHERE nurse_id = ?";
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement p = connection.prepareStatement(sql)) {

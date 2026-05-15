@@ -10,17 +10,17 @@ import java.util.List;
 
 public class PatientDAO {
 
-    public boolean addPatient(Patient patient) {
-        String sql = "INSERT INTO patients (FName,LName,Gender,Date_Of_Birth,contact_No,pt_Address)" + "VALUES (?,?,?,?,?,?)";
+    public boolean addPatient(Patient p) {
+        String sql = "INSERT INTO patients (FName, LName, Gender, Date_Of_Birth, contact_No, pt_Address) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection con = DBConnection.getConnection();
-             PreparedStatement p = con.prepareStatement(sql)) {
-            p.setString(1, patient.getFname());
-            p.setString(2, patient.getLname());
-            p.setString(3, String.valueOf(patient.getGender()));
-            p.setDate(4, java.sql.Date.valueOf(patient.getData_birth()));
-            p.setString(5, patient.getContact());
-            p.setString(6, patient.getAddress());
-            return p.executeUpdate() > 0;
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, p.getFname());
+            ps.setString(2, p.getLname());
+            ps.setString(3, p.getGender() != null ? p.getGender().getMessage() : null);
+            ps.setDate(4, Date.valueOf(p.getData_birth()));
+            ps.setString(5, p.getContact());
+            ps.setString(6, p.getAddress());
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

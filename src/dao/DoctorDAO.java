@@ -17,7 +17,7 @@ public class DoctorDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, d.getFname());
             ps.setString(2, d.getLname());
-            ps.setString(3, d.getGender() != null ? d.getGender().name() : null);
+            ps.setString(3, d.getGender() != null ? d.getGender().getMessage() : null);
             ps.setString(4, d.getSurgeonType());
             ps.setInt(5, d.getDeptId());
             ps.setString(6, d.getOfficeNo());

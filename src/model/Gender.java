@@ -1,6 +1,5 @@
 package model;
 
-import enums.AppointmentType;
 
 public enum Gender {
     MALE("M"), FEMALE("F");
