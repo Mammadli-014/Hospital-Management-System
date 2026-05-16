@@ -126,7 +126,7 @@ public class BedRecordDAO {
     public List<Integer> getAvailableBeds() {
         List<Integer> list = new ArrayList<>();
         String sql = "SELECT b.bed_No FROM Bed b " +
-                "WHERE b.bed_No NOT IN (" +
+                "WHERE b.bed_No NOT  IN (" +
                 "  SELECT bed_No FROM bedrecords WHERE discharge_Date IS NULL)";
         try (Connection con = DBConnection.getConnection();
              Statement st = con.createStatement();

@@ -55,6 +55,18 @@ public class SurgeryController {
         return surgeryDAO.findAll();
     }
 
+    public SurgeryRecord findById(int id){
+        return surgeryDAO.findById(id);
+    }
+    public String delete(int id){
+        boolean a = false;
+        if(findById(id) != null){
+            a =surgeryDAO.delete(id);
+        }
+        if(a) return "Success: Surgery Record has been deleted.";
+        else return "Record can not been deleted.";
+    }
+
     public List<SurgeryRecord> findByPatient(int patientId) {
         return surgeryDAO.findByPatient(patientId);
     }
