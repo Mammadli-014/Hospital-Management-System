@@ -129,6 +129,17 @@ public class AppointmentDAO {
         } catch (SQLException e) { e.printStackTrace(); }
         return list;
     }
+    public List<AppointmentRecord> findScheduled() {
+        List<AppointmentRecord> list = new ArrayList<>();
+        String sql = "SELECT * FROM Appointment WHERE appointment_status = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1,AppStatus.SCHEDULED.getMessage());
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) list.add(mapRow(rs));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return list;
+    }
 
     public List<AppointmentRecord> findByPatient(int patientId) {
         List<AppointmentRecord> list = new ArrayList<>();
