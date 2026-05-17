@@ -39,7 +39,7 @@ public class AppointmentController {
         if (doctorDAO.findById(doctorId) == null)
             return "ERROR: Doctor not found! (ID: " + doctorId + ")";
 
-        if (appointmentDAO.existsConflict(doctorId, dt))
+        if (appointmentDAO.existsConflict(doctorId, LocalDate.from(dt), time))
             return "ERROR: Doctor already has an appointment at this time!";
 
         if (appointmentDAO.patientHasAppointmentOnDay(patientId, doctorId, dt.toLocalDate()))
@@ -58,19 +58,14 @@ public class AppointmentController {
         if (existing == null)
             return "ERROR: Appointment not found!";
 
-        if (existing.getDate().isBefore(LocalDate.now()))
-            return "ERROR: Past appointments cannot be deleted!";
-
         boolean success = appointmentDAO.deleteAppointment(appId);
         return success ? "SUCCESS: Appointment deleted." : "ERROR: Deletion failed.";
     }
+
     public String cancelAppointment(int appointmentId) {
         AppointmentRecord existing = appointmentDAO.findById(appointmentId);
         if (existing == null)
             return "ERROR: Appointment not found!";
-
-        if (existing.getDate().isBefore(LocalDate.now()))
-            return "ERROR: Past appointments cannot be cancelled!";
 
         boolean success = appointmentDAO.cancelAppointment(appointmentId,AppStatus.CANCELLED);
         return success ? "SUCCESS: Appointment cancelled." : "ERROR: Cancellation failed.";

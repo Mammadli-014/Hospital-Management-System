@@ -519,7 +519,6 @@ public class MainFrame extends JFrame {
         return p;
     }
 
-    // Amount (a.getPaymentAmount()) geri getirildi ve listeye eklendi
     private Object[] appointRow(AppointmentRecord a) {
         return new Object[]{
                 a.getId(),

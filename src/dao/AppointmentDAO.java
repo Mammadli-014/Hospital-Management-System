@@ -23,7 +23,7 @@ public class AppointmentDAO {
             ps.setInt(1, app.getPatientId());
             ps.setInt(2, app.getDoctorId());
             ps.setString(3, app.getReason());
-            ps.setTimestamp(4, Timestamp.valueOf(app.getDate().atStartOfDay()));
+            ps.setDate(4, Date.valueOf(app.getDate()));
             ps.setInt(5, app.getPaymentAmount());
             ps.setString(6, app.getPaymentType().name());
             ps.setString(7, app.getAppointmentType().name());
@@ -70,16 +70,26 @@ public class AppointmentDAO {
         }
     }
 
-    public boolean existsConflict(int doctorId, LocalDateTime dt) {
-        String sql = "SELECT COUNT(*) FROM Appointment WHERE doct_Id=? AND appointment_Date=?";
+    public boolean existsConflict(int doctorId, LocalDate dt, LocalTime time) {
+        LocalDateTime newAppointment = dt.atTime(time);
+
+        String sql = "SELECT COUNT(*) FROM Appointment " +
+                "WHERE doct_Id = ? " +
+                "AND ABS(TIMESTAMPDIFF(MINUTE, " +
+                "CONCAT(appointment_Date, ' ', time), ?)) < 45";
+
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, doctorId);
-            ps.setTimestamp(2, Timestamp.valueOf(dt));
+            ps.setTimestamp(2, Timestamp.valueOf(newAppointment));
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getInt(1) > 0;
             }
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return false;
     }
 
