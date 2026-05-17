@@ -5,6 +5,7 @@ import enums.AppointmentType;
 import enums.PaymentType;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class AppointmentRecord extends MedicalEvent{
     private int doctorId;
@@ -14,8 +15,10 @@ public class AppointmentRecord extends MedicalEvent{
     private PaymentType paymentType;
     private AppointmentType appointmentType;
 
+    private LocalTime time;
+
     public AppointmentRecord(int id, int patientId, LocalDate date,int doctorId, String reason, int paymentAmount,
-             AppStatus status, PaymentType paymentType, AppointmentType appointmentType) {
+             AppStatus status, PaymentType paymentType, AppointmentType appointmentType,LocalTime time) {
         super(id,patientId,date);
         this.doctorId = doctorId;
         this.reason = reason;
@@ -23,6 +26,7 @@ public class AppointmentRecord extends MedicalEvent{
         this.status = status;
         this.paymentType = paymentType;
         this.appointmentType = appointmentType;
+        this.time=time;
     }
 
     public int getDoctorId() {
@@ -71,5 +75,13 @@ public class AppointmentRecord extends MedicalEvent{
 
     public void setAppointmentType(AppointmentType appointmentType) {
         this.appointmentType = appointmentType;
+    }
+
+    public LocalTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
     }
 }

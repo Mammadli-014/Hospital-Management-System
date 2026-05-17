@@ -7,6 +7,7 @@ import event.*;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +15,8 @@ import java.util.List;
 public class AppointmentDAO {
     public boolean add(AppointmentRecord app) {
         String sql = "INSERT INTO Appointment (patient_Id, doct_Id, reason, appointment_Date, " +
-                "payment_amount, mode_of_payment, mode_of_appointment, appointment_status) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                "payment_amount, mode_of_payment, mode_of_appointment, appointment_status, time) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -27,6 +28,7 @@ public class AppointmentDAO {
             ps.setString(6, app.getPaymentType().name());
             ps.setString(7, app.getAppointmentType().name());
             ps.setString(8, app.getStatus().name());
+            ps.setTime(9, Time.valueOf(app.getTime()));
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -144,6 +146,7 @@ public class AppointmentDAO {
 
 
     private AppointmentRecord mapRow(ResultSet rs) throws SQLException {
+        LocalTime time = rs.getTime("time") != null ? rs.getTime("time").toLocalTime() : null;
         return new AppointmentRecord(
                 rs.getInt("appointment_Id"),
                 rs.getInt("patient_Id"),
@@ -153,7 +156,8 @@ public class AppointmentDAO {
                 rs.getInt("payment_amount"),
                 AppStatus.fromMessage(rs.getString("appointment_status")),
                 PaymentType.fromMessage(rs.getString("mode_of_payment")),
-                AppointmentType.fromMessage(rs.getString("mode_of_appointment"))
+                AppointmentType.fromMessage(rs.getString("mode_of_appointment")),
+                time
                 );
     }
 }

@@ -6,6 +6,7 @@ import event.AppointmentRecord;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 public class AppointmentController {
@@ -27,7 +28,7 @@ public class AppointmentController {
     }
 
     public String createAppointment(int patientId, int doctorId, LocalDateTime dt, String reason,
-                                    int amount, PaymentType pType, AppointmentType aType) {
+                                    int amount, PaymentType pType, AppointmentType aType, LocalTime time) {
 
         if (dt.isBefore(LocalDateTime.now()))
             return "ERROR: Cannot create appointment in the past!";
@@ -45,7 +46,7 @@ public class AppointmentController {
             return "ERROR: Patient already has an appointment with this doctor today!";
 
         AppointmentRecord record = new AppointmentRecord(
-                0, patientId, dt.toLocalDate(), doctorId, reason, amount, AppStatus.SCHEDULED, pType, aType
+                0, patientId, dt.toLocalDate(), doctorId, reason, amount, AppStatus.SCHEDULED, pType, aType,time
         );
 
         boolean success = appointmentDAO.add(record);

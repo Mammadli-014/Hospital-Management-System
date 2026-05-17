@@ -15,6 +15,7 @@ import java.awt.event.*;
 import java.sql.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class MainFrame extends JFrame {
@@ -470,16 +471,21 @@ public class MainFrame extends JFrame {
     // APPOINTMENT PANEL
     private JPanel buildAppointPanel() {
         JPanel p = mainPanel("Appointments", "Schedule and manage patient appointments");
+
+        // Tasarımın Orijinal Sütunları Tamamen Korundu + "Time" Sütunu Eklendi
         DefaultTableModel model = new DefaultTableModel(
-                new String[]{"App ID","Patient ID","Doctor ID","Date","Status","Reason","Type"}, 0
+                new String[]{"App ID", "Patient ID", "Doctor ID", "Date", "Status", "Reason", "Amount", "Type", "Time"}, 0
         ) { @Override public boolean isCellEditable(int r, int c) { return false; } };
         JTable table = styledTable(model); addTableDetailSupport(table); refreshAppointTable(model);
+
         JTextField sf = styledSearchField("Search by App ID, Patient ID or Doctor ID…");
         JButton sb = primaryBtn("Search");
         sb.addActionListener(e -> {
             String kw = sf.getText().trim(); model.setRowCount(0);
             Integer id = tryParse(kw);
-            AppointmentController.getInstance().findAll().stream().filter(a -> id!=null && (a.getId()==id||a.getPatientId()==id||a.getDoctorId()==id)).forEach(a -> model.addRow(appointRow(a)));
+            AppointmentController.getInstance().findAll().stream()
+                    .filter(a -> id != null && (a.getId() == id || a.getPatientId() == id || a.getDoctorId() == id))
+                    .forEach(a -> model.addRow(appointRow(a)));
         });
         JButton sab = showAllBtn(); sab.addActionListener(e -> refreshAppointTable(model));
         JButton ab = successBtn("+ New Appointment"); ab.addActionListener(ev -> showAddAppointDialog(model));
@@ -513,33 +519,90 @@ public class MainFrame extends JFrame {
         return p;
     }
 
-    private Object[] appointRow(AppointmentRecord a) { return new Object[]{a.getId(), a.getPatientId(), a.getDoctorId(), a.getDate(), a.getStatus(), a.getReason(), a.getAppointmentType()}; }
-    private void refreshAppointTable(DefaultTableModel model) { model.setRowCount(0); AppointmentController.getInstance().findAll().forEach(a -> model.addRow(appointRow(a))); }
+    // Amount (a.getPaymentAmount()) geri getirildi ve listeye eklendi
+    private Object[] appointRow(AppointmentRecord a) {
+        return new Object[]{
+                a.getId(),
+                a.getPatientId(),
+                a.getDoctorId(),
+                a.getDate(),
+                a.getStatus(),
+                a.getReason(),
+                a.getPaymentAmount() + " $",
+                a.getAppointmentType(),
+                a.getTime() != null ? a.getTime().toString() : ""
+        };
+    }
+
+    private void refreshAppointTable(DefaultTableModel model) {
+        model.setRowCount(0);
+        AppointmentController.getInstance().findAll().forEach(a -> model.addRow(appointRow(a)));
+    }
 
     private void showAddAppointDialog(DefaultTableModel tableModel) {
-        JDialog dlg = dialog("Create Appointment", 520, 520);
+        JDialog dlg = dialog("Create Appointment", 520, 560); // Alanlar için boyutu korudum
         SearchableComboBox<Patient> pp = new SearchableComboBox<>(patientDAO.findAll(), pt -> pt.getId()+" - "+pt.getFname()+" "+pt.getLname());
         SearchableComboBox<Doctor>  dp = new SearchableComboBox<>(doctorDAO.findAll(),  d  -> d.getId() +" - "+d.getFname() +" "+d.getLname());
-        JTextField dt=dlgField(); dt.setText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
-        JTextField rs=dlgField(); JTextField am=dlgField();
-        JComboBox<PaymentType> pc=new JComboBox<>(PaymentType.values());
-        JComboBox<AppointmentType> ac=new JComboBox<>(AppointmentType.values());
-        Object[][] fds = {{"Patient *",pp},{"Doctor *",dp},{"Date (yyyy-MM-dd HH:mm)",dt},{"Reason",rs},{"Amount",am},{"Payment Type",pc},{"Appointment Type",ac}};
+
+        // Düzenleme: Sadece tarih görünüyor (Saat ve dakika otomatik gelmiyor)
+        JTextField dt = dlgField(); dt.setText(LocalDate.now().toString());
+
+        // Yeni Eklenen Saat Alanı (Varsayılan olarak anlık saati HH:mm formatında yazar)
+        JTextField tm = dlgField(); tm.setText(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
+
+        JTextField rs = dlgField(); JTextField am = dlgField();
+        JComboBox<PaymentType> pc = new JComboBox<>(PaymentType.values());
+        JComboBox<AppointmentType> ac = new JComboBox<>(AppointmentType.values());
+
+        // Dizaynı bozmadan "Time" satırı eklendi
+        Object[][] fds = {
+                {"Patient *", pp},
+                {"Doctor *", dp},
+                {"Date (yyyy-MM-dd) *", dt},
+                {"Time (HH:mm) *", tm},
+                {"Reason", rs},
+                {"Amount *", am},
+                {"Payment Type", pc},
+                {"Appointment Type", ac}
+        };
+
         JButton save = successBtn("Save Appointment");
         save.addActionListener(e -> {
             try {
-                Patient sp=pp.getSelectedItem(); Doctor sd=dp.getSelectedItem();
-                if (sp==null) { JOptionPane.showMessageDialog(dlg,"Please select a patient.","Validation Error",JOptionPane.WARNING_MESSAGE); return; }
-                if (sd==null) { JOptionPane.showMessageDialog(dlg,"Please select a doctor.", "Validation Error",JOptionPane.WARNING_MESSAGE); return; }
-                String dtText=dt.getText().trim();
-                LocalDateTime parsedDt = dtText.length()==16 ? LocalDateTime.parse(dtText,DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : LocalDateTime.parse(dtText,DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                String res = AppointmentController.getInstance().createAppointment(sp.getId(), sd.getId(), parsedDt, rs.getText(), Integer.parseInt(am.getText()), (PaymentType)pc.getSelectedItem(), (AppointmentType)ac.getSelectedItem());
+                Patient sp = pp.getSelectedItem(); Doctor sd = dp.getSelectedItem();
+                if (sp == null) { JOptionPane.showMessageDialog(dlg,"Please select a patient.","Validation Error",JOptionPane.WARNING_MESSAGE); return; }
+                if (sd == null) { JOptionPane.showMessageDialog(dlg,"Please select a doctor.", "Validation Error",JOptionPane.WARNING_MESSAGE); return; }
+                if (am.getText().trim().isEmpty()) { JOptionPane.showMessageDialog(dlg,"Amount is required.", "Validation Error",JOptionPane.WARNING_MESSAGE); return; }
+
+                // Tarih ve Saati parse edip birleştiriyoruz
+                LocalDate parsedDate = LocalDate.parse(dt.getText().trim());
+                LocalTime parsedTime = LocalTime.parse(tm.getText().trim(), DateTimeFormatter.ofPattern("HH:mm"));
+                LocalDateTime combinedDateTime = parsedDate.atTime(parsedTime);
+
+                // Controller'daki yeni imzaya (LocalTime parametreli) uygun çağrı yapılıyor
+                String res = AppointmentController.getInstance().createAppointment(
+                        sp.getId(),
+                        sd.getId(),
+                        combinedDateTime,
+                        rs.getText(),
+                        Integer.parseInt(am.getText().trim()),
+                        (PaymentType) pc.getSelectedItem(),
+                        (AppointmentType) ac.getSelectedItem(),
+                        parsedTime
+                );
+
                 if (res.startsWith("SUCCESS")) { refreshAppointTable(tableModel); updateDashboardStats(); dlg.dispose(); }
                 else JOptionPane.showMessageDialog(dlg, res, "Validation Error", JOptionPane.WARNING_MESSAGE);
-            } catch (Exception ex) { JOptionPane.showMessageDialog(dlg, "Error: "+ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); }
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(dlg, "Invalid Date or Time format! Use YYYY-MM-DD and HH:mm", "Format Error", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dlg, "Error: "+ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
         layoutDialog(dlg, fds, save);
     }
+
+
 
     // SURGERY PANEL  —  FIX: table referansı lambda'ya capture edildi, yeni JTable oluşturulmuyor
     private JPanel buildSurgeryPanel() {
