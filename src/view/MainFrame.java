@@ -70,11 +70,14 @@ public class MainFrame extends JFrame {
         contentPanel.add(buildPatientPanel(),    "patients");
         contentPanel.add(buildMedRecordPanel(),  "medrecords");
         contentPanel.add(buildBedPanel(),        "beds");
+        contentPanel.add(buildWardPanel(),       "wards");
         contentPanel.add(buildAppointPanel(),    "appointments");
         contentPanel.add(buildSurgeryPanel(),    "surgery");
         contentPanel.add(buildDoctorPanel(),     "doctors");
         contentPanel.add(buildNursePanel(),      "nurses");
         contentPanel.add(buildDepartmentPanel(), "departments");
+
+
 
         add(contentPanel, BorderLayout.CENTER);
         updateDashboardStats();
@@ -114,6 +117,7 @@ public class MainFrame extends JFrame {
         sidebar.add(navItem("Doctors",     "doctors"));
         sidebar.add(navItem("Nurses",      "nurses"));
         sidebar.add(navItem("Departments", "departments"));
+        sidebar.add(navItem("Wards",       "wards"));
 
         sidebar.add(Box.createVerticalStrut(8));
         sidebar.add(navLabel("RECORDS"));
@@ -419,22 +423,25 @@ public class MainFrame extends JFrame {
     private JPanel buildBedPanel() {
         JPanel p = mainPanel("Bed Admissions", "Inpatient bed assignment and discharge");
         DefaultTableModel model = new DefaultTableModel(
-                new String[]{"Adm ID","Patient ID","Nurse ID","Bed No","Check-in","Check-out","Amount"}, 0
+                new String[]{"Adm ID","Patient ID","Nurse ID","Bed No","Ward No","Ward Name","Check-in","Check-out","Amount"}, 0
         ) { @Override public boolean isCellEditable(int r, int c) { return false; } };
         JTable table = styledTable(model); addTableDetailSupport(table); refreshBedTable(model);
+
         JTextField sf = styledSearchField("Search by Admission ID or Patient ID…");
         JButton sb = primaryBtn("Search");
         sb.addActionListener(e -> {
             String kw = sf.getText().trim(); model.setRowCount(0);
             Integer id = tryParse(kw);
-            AdmissionController.getInstance().getAllBedRecords().stream().filter(r -> id!=null && (r.getId()==id||r.getPatientId()==id)).forEach(r -> model.addRow(bedRow(r)));
+            AdmissionController.getInstance().getAllBedRecords().stream()
+                    .filter(r -> id != null && (r.getId() == id || r.getPatientId() == id))
+                    .forEach(r -> model.addRow(bedRow(r)));
         });
         JButton sab = showAllBtn(); sab.addActionListener(e -> refreshBedTable(model));
         JButton ab = successBtn("+ Admit Patient"); ab.addActionListener(ev -> showAddBedDialog(model));
         JButton db = dangerBtn("Discharge");
         db.addActionListener(ev -> {
             int row = table.getSelectedRow(); if (row < 0) return;
-            String res = AdmissionController.getInstance().dischargeFromBed((int)model.getValueAt(row,0), LocalDate.now(), 0);
+            String res = AdmissionController.getInstance().dischargeFromBed((int) model.getValueAt(row, 0), LocalDate.now(), 0);
             JOptionPane.showMessageDialog(this, res); refreshBedTable(model); updateDashboardStats();
         });
         p.add(toolbar(sf, sb, sab, ab, db), BorderLayout.NORTH);
@@ -442,9 +449,35 @@ public class MainFrame extends JFrame {
         return p;
     }
 
-    private Object[] bedRow(BedRecord r) { return new Object[]{r.getId(), r.getPatientId(), r.getNurseNo(), r.getNo(), r.getDate(), r.getEndingDate()!=null?r.getEndingDate():"Active", r.getAmount()+" $"}; }
-    private void refreshBedTable(DefaultTableModel model) { model.setRowCount(0); AdmissionController.getInstance().getAllBedRecords().forEach(r -> model.addRow(bedRow(r))); }
+    private Object[] bedRow(BedRecord r) {
+        String wardNo   = "";
+        String wardName = "";
+        String sql = "SELECT b.ward_No, w.ward_Name FROM bed b " +
+                "JOIN ward w ON w.ward_No = b.ward_No " +
+                "WHERE b.Bed_No = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, r.getNo());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                wardNo   = String.valueOf(rs.getInt("ward_No"));
+                wardName = rs.getString("ward_Name");
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
 
+        return new Object[]{
+                r.getId(), r.getPatientId(), r.getNurseNo(),
+                r.getNo(), wardNo, wardName,
+                r.getDate(),
+                r.getEndingDate() != null ? r.getEndingDate() : "Active",
+                r.getAmount() + " $"
+        };
+    }
+
+    private void refreshBedTable(DefaultTableModel model) {
+        model.setRowCount(0);
+        AdmissionController.getInstance().getAllBedRecords().forEach(r -> model.addRow(bedRow(r)));
+    }
     private void showAddBedDialog(DefaultTableModel tableModel) {
         JDialog dlg = dialog("Admit Patient to Bed", 520, 500);
         SearchableComboBox<Patient> pp = new SearchableComboBox<>(patientDAO.findAll(), pt -> pt.getId()+" - "+pt.getFname()+" "+pt.getLname());
@@ -601,9 +634,7 @@ public class MainFrame extends JFrame {
         layoutDialog(dlg, fds, save);
     }
 
-
-
-    // SURGERY PANEL  —  FIX: table referansı lambda'ya capture edildi, yeni JTable oluşturulmuyor
+    // SURGERY PANEL
     private JPanel buildSurgeryPanel() {
         JPanel p = mainPanel("Surgery Records", "Surgical procedures and operation history");
         DefaultTableModel model = new DefaultTableModel(
@@ -665,7 +696,7 @@ public class MainFrame extends JFrame {
         layoutDialog(dlg, fds, save);
     }
 
-    // DEPARTMENT PANEL — accordion: tıklayınca açılır/kapanır
+    // DEPARTMENT PANEL
     private JPanel buildDepartmentPanel() {
         JPanel outer = mainPanel("Departments", "Staff overview by department");
 
@@ -677,8 +708,8 @@ public class MainFrame extends JFrame {
             int deptId     = dept.getDeptId();
             int docCount   = DepartmentController.getInstance().getDoctorCount(deptId);
             int nurseCount = DepartmentController.getInstance().getNurseCount(deptId);
+            int wardCount  = WardController.getInstance().getWardCount(deptId); // YENİ
 
-            // Header
             JPanel header = new JPanel(new BorderLayout());
             header.setBackground(WHITE);
             header.setBorder(BorderFactory.createCompoundBorder(
@@ -704,14 +735,20 @@ public class MainFrame extends JFrame {
             nurseBadge.setBackground(new Color(0xECFEFF)); nurseBadge.setOpaque(true);
             nurseBadge.setBorder(BorderFactory.createEmptyBorder(3, 10, 3, 10));
 
+            // YENİ: Ward badge
+            JLabel wardBadge = new JLabel("Wards: " + wardCount);
+            wardBadge.setFont(FONT_SMALL); wardBadge.setForeground(new Color(0x7C3AED));
+            wardBadge.setBackground(new Color(0xF5F3FF)); wardBadge.setOpaque(true);
+            wardBadge.setBorder(BorderFactory.createEmptyBorder(3, 10, 3, 10));
+
             JLabel arrow = new JLabel("  ▼");
             arrow.setFont(FONT_SMALL); arrow.setForeground(TEXT_LIGHT);
 
-            badges.add(docBadge); badges.add(nurseBadge); badges.add(arrow);
+            badges.add(docBadge); badges.add(nurseBadge); badges.add(wardBadge); badges.add(arrow);
             header.add(nameLabel, BorderLayout.WEST);
             header.add(badges,    BorderLayout.EAST);
 
-            // Detail (accordion body)
+            // Detail body
             JPanel detail = new JPanel();
             detail.setLayout(new BoxLayout(detail, BoxLayout.Y_AXIS));
             detail.setBackground(new Color(0xF8FAFC));
@@ -725,7 +762,9 @@ public class MainFrame extends JFrame {
                 t.setBorder(BorderFactory.createEmptyBorder(6, 0, 4, 0));
                 detail.add(t);
                 for (Doctor d : deptDoctors)
-                    detail.add(deptPersonRow(d.getId()+" — "+d.getFname()+" "+d.getLname(), d.getSurgeonType()!=null?d.getSurgeonType():"Doctor", new Color(0xEFF6FF), new Color(0x2563EB)));
+                    detail.add(deptPersonRow(d.getId() + " — " + d.getFname() + " " + d.getLname(),
+                            d.getSurgeonType() != null ? d.getSurgeonType() : "Doctor",
+                            new Color(0xEFF6FF), new Color(0x2563EB)));
             }
 
             List<Nurse> deptNurses = nurseDAO.findByDepartment(deptId);
@@ -735,22 +774,33 @@ public class MainFrame extends JFrame {
                 t.setBorder(BorderFactory.createEmptyBorder(10, 0, 4, 0));
                 detail.add(t);
                 for (Nurse n : deptNurses)
-                    detail.add(deptPersonRow(n.getId()+" — "+n.getFname()+" "+n.getLname(), "Nurse", new Color(0xECFEFF), new Color(0x0891B2)));
+                    detail.add(deptPersonRow(n.getId() + " — " + n.getFname() + " " + n.getLname(),
+                            "Nurse", new Color(0xECFEFF), new Color(0x0891B2)));
             }
 
-            if (deptDoctors.isEmpty() && deptNurses.isEmpty()) {
-                JLabel empty = new JLabel("No staff assigned.");
+            // YENİ: Ward listesi
+            List<Ward> deptWards = WardController.getInstance().findByDepartment(deptId);
+            if (!deptWards.isEmpty()) {
+                JLabel t = new JLabel("WARDS");
+                t.setFont(new Font("Segoe UI", Font.BOLD, 10)); t.setForeground(TEXT_LIGHT);
+                t.setBorder(BorderFactory.createEmptyBorder(10, 0, 4, 0));
+                detail.add(t);
+                for (Ward w : deptWards)
+                    detail.add(deptPersonRow(w.getWardNo() + " — " + w.getWardName(),
+                            "Ward", new Color(0xF5F3FF), new Color(0x7C3AED)));
+            }
+
+            if (deptDoctors.isEmpty() && deptNurses.isEmpty() && deptWards.isEmpty()) {
+                JLabel empty = new JLabel("No staff or wards assigned.");
                 empty.setFont(FONT_SMALL); empty.setForeground(TEXT_LIGHT);
                 empty.setBorder(BorderFactory.createEmptyBorder(6, 0, 6, 0));
                 detail.add(empty);
             }
 
-            // Toggle on click
             MouseAdapter toggle = new MouseAdapter() {
                 boolean open = false;
                 public void mouseClicked(MouseEvent e) {
-                    open = !open;
-                    detail.setVisible(open);
+                    open = !open; detail.setVisible(open);
                     arrow.setText(open ? "  ▲" : "  ▼");
                     listPanel.revalidate(); listPanel.repaint();
                 }
@@ -773,7 +823,6 @@ public class MainFrame extends JFrame {
         }
 
         listPanel.add(Box.createVerticalGlue());
-
         JScrollPane sp = new JScrollPane(listPanel);
         sp.setBorder(BorderFactory.createEmptyBorder());
         sp.getViewport().setBackground(BG);
@@ -794,6 +843,79 @@ public class MainFrame extends JFrame {
         row.add(nl, BorderLayout.CENTER); row.add(rl, BorderLayout.EAST);
         return row;
     }
+
+    private JPanel buildWardPanel() {
+        JPanel p = mainPanel("Wards", "Hospital ward management");
+
+        DefaultTableModel model = new DefaultTableModel(
+                new String[]{"Ward No", "Ward Name", "Dept ID"}, 0
+        ) { @Override public boolean isCellEditable(int r, int c) { return false; } };
+        JTable table = styledTable(model); addTableDetailSupport(table); refreshWardTable(model);
+
+        JTextField sf = styledSearchField("Search by ward name or dept ID…");
+        JButton sb = primaryBtn("Search");
+        sb.addActionListener(e -> {
+            String kw = sf.getText().trim(); model.setRowCount(0);
+            Integer id = tryParse(kw);
+            WardController.getInstance().findAll().stream()
+                    .filter(w -> w.getWardName().toLowerCase().contains(kw.toLowerCase())
+                            || (id != null && (w.getWardNo() == id || w.getDeptId() == id)))
+                    .forEach(w -> model.addRow(wardRow(w)));
+        });
+
+        JButton sab = showAllBtn(); sab.addActionListener(e -> refreshWardTable(model));
+
+        JButton ab = successBtn("+ New Ward");
+        ab.addActionListener(ev -> showAddWardDialog(model));
+
+        JButton db = dangerBtn("Delete");
+        db.addActionListener(ev -> {
+            int row = table.getSelectedRow();
+            if (row < 0) return;
+            if (confirmDelete()) {
+                String res = WardController.getInstance().deleteWard((int) model.getValueAt(row, 0));
+                JOptionPane.showMessageDialog(this, res);
+                refreshWardTable(model);
+            }
+        });
+
+        p.add(toolbar(sf, sb, sab, ab, db), BorderLayout.NORTH);
+        p.add(scrollPane(table), BorderLayout.CENTER);
+        return p;
+    }
+
+    private Object[] wardRow(Ward w) {
+        return new Object[]{w.getWardNo(), w.getWardName(), w.getDeptId()};
+    }
+
+    private void refreshWardTable(DefaultTableModel model) {
+        model.setRowCount(0);
+        WardController.getInstance().findAll().forEach(w -> model.addRow(wardRow(w)));
+    }
+
+    private void showAddWardDialog(DefaultTableModel tableModel) {
+        JDialog dlg = dialog("Add New Ward", 420, 260);
+        JTextField wn = dlgField();
+        JTextField di = dlgField();
+        Object[][] fds = {{"Ward Name *", wn}, {"Dept ID *", di}};
+        JButton save = successBtn("Save Ward");
+        save.addActionListener(e -> {
+            try {
+                String res = WardController.getInstance().addWard(
+                        wn.getText().trim(),
+                        Integer.parseInt(di.getText().trim())
+                );
+                if (res.startsWith("SUCCESS")) { refreshWardTable(tableModel); dlg.dispose(); }
+                else JOptionPane.showMessageDialog(dlg, res, "Validation Error", JOptionPane.WARNING_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dlg, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        layoutDialog(dlg, fds, save);
+    }
+
+
+
 
     // SEARCHABLE COMBO BOX
     private class SearchableComboBox<T> extends JPanel {
