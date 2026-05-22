@@ -22,3 +22,38 @@ The system strictly follows the **Model-View-Controller (MVC)** architectural bl
 
 ### 🏢 Master-Detail Hierarchical Layout
 The physical structure of the medical center is comprehensively mapped into the database and reflected dynamically on the interactive user interface:
+
+
+Department (e.g., Cardiology)
+└── Wards (Interactive Ward Panels grouped dynamically)
+└── Beds (Assigned Inpatient Beds & Real-Time Monitoring)
+
+
+The **Departments Workspace** utilizes dynamic expandable component cards (`▼ / ▲` toggles) to query and render associated Doctors, Nurses, and Wards in real-time using asynchronous data refreshes.
+
+---
+
+## ⚙️ Core Module Specifications
+
+* **👤 Patient Management:** Full intake processing with vital statistics tracking.
+* **👨‍⚕️ Staff Workspaces:** Comprehensive profiles for Doctors and Nurses paired with active departmental badge tracking.
+* **📋 Medical Records:** Permanent, detailed clinical logs supporting double-click full text views for complex multi-line diagnoses.
+* **🛏 Bed Admissions:** Two-phase inpatient check-in and secure discharge system tracking live billing states (`Active` admissions keep the `discharge_Date` as `NULL`).
+* **🔪 Surgery Logs:** Operational records indexing surgeons, assistants, theatre room boundaries, and pre/post-op medical notes.
+
+---
+
+## 🛠 Tech Stack & Code Quality Standards
+
+* **Language & UI:** Java SE 17 / Swing (Implemented flat, modern component frameworks like `GridBagLayout`, Custom Renderers, and Apple Transparent Title Bar parameters).
+* **Database Management:** MySQL (Enforcing strict `FOREIGN KEY` constraints and `RESTRICT` deletion blocks).
+* **Patterns Applied:** Singleton Pattern (on Controllers), DAO Pattern (on Data Tiers), Master-Detail Views.
+
+---
+
+## 📋 Database Connection Checklist
+
+Before running the compiler, ensure your local or remote database configuration matches the parameters inside the connection module:
+```sql
+CREATE DATABASE hospital_db;
+-- Import schemas for table indices: patients, doctor, nurse, department, ward, appointment, bedrecords, surgery.
