@@ -51,9 +51,12 @@ The **Departments Workspace** utilizes dynamic expandable component cards (`▼ 
 
 ---
 
-## 📋 Database Connection Checklist
+## 💾 Database Setup & Initial Data
 
-Before running the compiler, ensure your local or remote database configuration matches the parameters inside the connection module:
-```sql
-CREATE DATABASE hospital_db;
--- Import schemas for table indices: patients, doctor, nurse, department, ward, appointment, bedrecords, surgery.
+To get the exact database schema and realistic sample rows (patients, doctors, nurses, and 45-min pre-configured appointment test slots), follow these steps:
+
+1. Open your MySQL client (Workbench, phpMyAdmin, or Command Line).
+2. Create a fresh database:
+   ```sql
+   CREATE DATABASE hospital_db;
+   USE hospital_db;
