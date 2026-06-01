@@ -2,8 +2,6 @@ package dao;
 
 import db.DBConnection;
 import model.Department;
-import model.Nurse;
-import model.Person;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
